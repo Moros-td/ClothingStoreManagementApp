@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">ClotingStoreManagementApp</string>
+    <string name="menu_home">Trang chủ</string>
+    <string name="menu_category">Danh mục</string>
+    <string name="menu_product">Sản phẩm</string>
+    <string name="menu_customer">Khách hàng</string>
+    <string name="menu_order">Đơn hàng</string>
+    <string name="menu_orderHistory">Lịch sử đơn hàng</string>
+    <string name="menu_account">Nhân viên</string>
+    <string name="open_drawer">Open Drawer</string>
+    <string name="close_drawer">Close Drawer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
