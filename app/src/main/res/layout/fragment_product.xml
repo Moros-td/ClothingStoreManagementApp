@@ -8,10 +8,10 @@
     tools:context=".fragment.ProductFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rcv_product"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="product" />
+        android:layout_height="match_parent"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_product"
