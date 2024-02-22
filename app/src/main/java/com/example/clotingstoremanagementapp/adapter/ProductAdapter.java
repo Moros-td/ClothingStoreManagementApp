@@ -3,6 +3,8 @@ package com.example.clotingstoremanagementapp.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,15 +14,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.clotingstoremanagementapp.R;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ProductAdapter extends  RecyclerView.Adapter<ProductAdapter.ProductViewHolder>{
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> implements Filterable {
 
     private List<ProductEntity> listProduct;
+    private List<ProductEntity> listProductOld;
 
     public ProductAdapter(List<ProductEntity> listProduct) {
+
         this.listProduct = listProduct;
+        this.listProductOld = listProduct;
     }
 
     @NonNull
@@ -50,6 +56,44 @@ public class ProductAdapter extends  RecyclerView.Adapter<ProductAdapter.Product
         if(listProduct != null)
             return listProduct.size();
         return 0;
+    }
+
+    @Override
+    public Filter getFilter() {
+
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String searchStr = constraint.toString();
+
+                // nếu chuỗi tim kiếm trống
+                if(searchStr.isEmpty()){
+                    listProduct = listProductOld;
+                }
+                else{
+
+                    // tìm các phần tử cùng tên sản phẩm add vào list
+                    List<ProductEntity> list = new ArrayList<>();
+                    for (ProductEntity p: listProductOld) {
+                        if(p.getProductName().toLowerCase().contains(searchStr.toLowerCase())){
+                            list.add(p);
+                        }
+                    }
+
+                    listProduct = list;
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = listProduct;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                listProduct = (List<ProductEntity>) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public class ProductViewHolder extends RecyclerView.ViewHolder{
