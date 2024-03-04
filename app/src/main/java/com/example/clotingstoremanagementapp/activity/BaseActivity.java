@@ -187,5 +187,4 @@ public class BaseActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
 }

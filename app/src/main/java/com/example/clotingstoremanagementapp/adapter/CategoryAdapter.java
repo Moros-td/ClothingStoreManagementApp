@@ -1,16 +1,19 @@
 package com.example.clotingstoremanagementapp.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.clotingstoremanagementapp.R;
+import com.example.clotingstoremanagementapp.custom_interface.IClickItemCategoryListener;
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
 
 import java.util.ArrayList;
@@ -21,8 +24,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private List<CategoryEntity> listCategory;
     private List<CategoryEntity> listCategoryOld;
 
-    public CategoryAdapter(List<CategoryEntity> listCategory) {
+    private IClickItemCategoryListener iClickItemCategoryListener;
 
+    public CategoryAdapter(List<CategoryEntity> listCategory, IClickItemCategoryListener listener) {
+        this.iClickItemCategoryListener = listener;
+        this.listCategory = listCategory;
+        this.listCategoryOld = listCategory;
+    }
+
+    public CategoryAdapter(List<CategoryEntity> listCategory) {
         this.listCategory = listCategory;
         this.listCategoryOld = listCategory;
     }
@@ -37,13 +47,32 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     @Override
     public void onBindViewHolder(@NonNull CategoryAdapter.CategoryViewHolder holder, int position) {
-        CategoryEntity CategoryEntity = listCategory.get(position);
-        if(CategoryEntity == null){
+        CategoryEntity categoryEntity = listCategory.get(position);
+        if(categoryEntity == null){
             return;
         }
 
-        holder.textView_categoryName.setText(CategoryEntity.getCategoryName());
-        holder.textView_categoryParen.setText(CategoryEntity.getCategoryParenName());
+        holder.textView_categoryName.setText(categoryEntity.getCategoryName());
+        holder.textView_categoryParen.setText(categoryEntity.getCategoryParent().getCategoryName());
+        holder.textView_categoryId.setText(String.valueOf(categoryEntity.getId()));
+        // sự kiện click nút
+
+        if(iClickItemCategoryListener != null){
+            holder.imageView_categoryEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Log.d("oke", "onClick: ");
+                    iClickItemCategoryListener.onClickEditCategory(categoryEntity);
+                }
+            });
+
+            holder.imageView_categoryDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    iClickItemCategoryListener.onClickDeleteCategory(categoryEntity);
+                }
+            });
+        }
     }
 
     @Override
@@ -92,13 +121,16 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     }
     public class CategoryViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView textView_categoryName, textView_categoryParen;
+        private TextView textView_categoryName, textView_categoryParen, textView_categoryId;
+        private ImageView imageView_categoryEdit, imageView_categoryDelete;
 
         public CategoryViewHolder(@NonNull View itemView) {
             super(itemView);
             textView_categoryName = itemView.findViewById(R.id.textView_categoryName);
             textView_categoryParen = itemView.findViewById(R.id.textView_categoryParen);
-
+            textView_categoryId = itemView.findViewById(R.id.textView_categoryId);
+            imageView_categoryEdit = itemView.findViewById(R.id.imageView_edit_category);
+            imageView_categoryDelete = itemView.findViewById(R.id.imageView_delete_category);
         }
 
     }

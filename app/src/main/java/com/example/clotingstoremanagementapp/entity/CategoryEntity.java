@@ -1,12 +1,33 @@
 package com.example.clotingstoremanagementapp.entity;
 
-public class CategoryEntity {
-    private String categoryName;
-    private String categoryParenName;
+import java.io.Serializable;
 
-    public CategoryEntity(String categoryName, String categoryParenName) {
+public class CategoryEntity implements Serializable {
+
+    private int id;
+    private String categoryName;
+    private CategoryEntity categoryParent;
+
+    public CategoryEntity(int id, String categoryName, CategoryEntity categoryParent) {
+        this.id = id;
         this.categoryName = categoryName;
-        this.categoryParenName = categoryParenName;
+        this.categoryParent = categoryParent;
+    }
+
+    public CategoryEntity getCategoryParent() {
+        return categoryParent;
+    }
+
+    public void setCategoryParent(CategoryEntity categoryParent) {
+        this.categoryParent = categoryParent;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getCategoryName() {
@@ -17,11 +38,5 @@ public class CategoryEntity {
         this.categoryName = categoryName;
     }
 
-    public String getCategoryParenName() {
-        return categoryParenName;
-    }
 
-    public void setCategoryParenName(String categoryParenName) {
-        this.categoryParenName = categoryParenName;
-    }
 }
