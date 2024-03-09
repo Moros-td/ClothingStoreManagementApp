@@ -1,17 +1,32 @@
 package com.example.clotingstoremanagementapp.entity;
 
-public class ProductEntity {
+import java.io.Serializable;
+
+public class ProductEntity implements Serializable {
+    private int id;
     private String productCode;
     private String productName;
     private String productColor;
     private int productQuantity;
     private Double productPrice;
 
-    public ProductEntity(String productCode, String productName, int productQuantity, Double productPrice) {
+    public String getProductDescribe() {
+        return productDescribe;
+    }
+
+    public void setProductDescribe(String productDescribe) {
+        this.productDescribe = productDescribe;
+    }
+
+    private String productDescribe;
+
+    public ProductEntity(int id, String productCode, String productName, int productQuantity, Double productPrice,String productDescribe) {
+        this.id=id;
         this.productCode = productCode;
         this.productName = productName;
         this.productQuantity = productQuantity;
         this.productPrice = productPrice;
+        this.productDescribe=productDescribe;
     }
 
     public String getProductCode() {
@@ -52,5 +67,13 @@ public class ProductEntity {
 
     public void setProductPrice(Double productPrice) {
         this.productPrice = productPrice;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

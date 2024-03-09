@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ButtonColor" parent="ThemeOverlay.AppCompat">
+        <item name="colorAccent">#EE0000</item>
+    </style>
+</resources>
