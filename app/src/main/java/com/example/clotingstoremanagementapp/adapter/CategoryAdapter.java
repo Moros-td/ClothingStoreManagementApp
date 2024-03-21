@@ -53,7 +53,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         }
 
         holder.textView_categoryName.setText(categoryEntity.getCategoryName());
-        holder.textView_categoryParen.setText(categoryEntity.getCategoryParent().getCategoryName());
+
+        String parentName = "None";
+        if(categoryEntity.getCategoryParent() != null){
+            if(categoryEntity.getCategoryParent().getCategoryName() != null){
+                parentName = categoryEntity.getCategoryParent().getCategoryName();
+            }
+        }
+
+        holder.textView_categoryParen.setText(parentName);
         holder.textView_categoryId.setText(String.valueOf(categoryEntity.getId()));
         // sự kiện click nút
 

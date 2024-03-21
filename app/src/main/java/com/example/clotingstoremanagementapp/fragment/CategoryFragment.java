@@ -28,12 +28,18 @@ import com.example.clotingstoremanagementapp.activity.BaseActivity;
 import com.example.clotingstoremanagementapp.activity.CategoryInfoActivity;
 import com.example.clotingstoremanagementapp.adapter.CategoryAdapter;
 import com.example.clotingstoremanagementapp.adapter.CategoryArrayAdapter;
+import com.example.clotingstoremanagementapp.api.ApiService;
 import com.example.clotingstoremanagementapp.custom_interface.IClickItemCategoryListener;
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
+import com.example.clotingstoremanagementapp.interceptor.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CategoryFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -44,6 +50,12 @@ public class CategoryFragment extends Fragment {
     private CategoryInfoActivity categoryInfoActivity;
 
     private FloatingActionButton fab;
+
+    SessionManager sessionManager;
+
+    Dialog dialog;
+
+    List<CategoryEntity> listCategories;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,37 +70,11 @@ public class CategoryFragment extends Fragment {
         //set layout manager cho rcv
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(baseActivity);
         recyclerView.setLayoutManager(linearLayoutManager);
+        sessionManager = new SessionManager(baseActivity);
+        dialog = BaseActivity.openLoadingDialog(baseActivity);
+        listCategories = new ArrayList<>();
 
-        // set adapter cho rcv
-        // và set event cho 2 nút
-        CategoryAdapter categoryAdapter = new CategoryAdapter(getListCategory(), new IClickItemCategoryListener() {
-            @Override
-            public void onClickEditCategory(CategoryEntity category) {
-                replaceActivityAndMoveData(category);
-                //Log.d("oke", "onClickEditCategory: ");
-            }
-
-            @Override
-            public void onClickDeleteCategory(CategoryEntity category) {
-                openConfirmDialog(category);
-            }
-        });
-        recyclerView.setAdapter(categoryAdapter);
-
-        // sự kiện cho search view
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                categoryAdapter.getFilter().filter(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                categoryAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });
+        callApiGetAllCategories();
 
         // sự kiện cho nút thêm
         fab.setOnClickListener(new View.OnClickListener() {
@@ -137,86 +123,12 @@ public class CategoryFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                openSuccessDialog();
+                BaseActivity.openSuccessDialog(getContext(), "Xóa sản phẩm thành công");
                 //openErrorDialog();
             }
         });
 
         cancelConfirmBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void openSuccessDialog() {
-        final Dialog dialog = new Dialog(baseActivity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.success_dialog);
-
-        Window window = dialog.getWindow();
-        if(window == null){
-            return;
-        }
-
-        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        WindowManager.LayoutParams windowAttr = window.getAttributes();
-        windowAttr.gravity = Gravity.CENTER;
-        window.setAttributes(windowAttr);
-
-        // setView trên dialog
-        TextView successTextView = dialog.findViewById(R.id.successTextView);
-
-        successTextView.setText("Xóa danh mục thành công!");
-
-        // Khởi tạo Handler
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Đóng dialog sau 3 giây
-                dialog.dismiss();
-            }
-        }, 3000); // Thời gian đợi 3 giây trước khi đóng dialog
-
-        // click ra ngoài thì tắt dialog
-        dialog.setCancelable(false);
-
-        dialog.show();
-    }
-
-    private void openErrorDialog() {
-        final Dialog dialog = new Dialog(baseActivity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.error_dialog);
-
-        Window window = dialog.getWindow();
-        if(window == null){
-            return;
-        }
-
-        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        WindowManager.LayoutParams windowAttr = window.getAttributes();
-        windowAttr.gravity = Gravity.CENTER;
-        window.setAttributes(windowAttr);
-
-        // click ra ngoài thì tắt dialog
-        dialog.setCancelable(true);
-
-        // setView trên dialog
-        TextView errorTextView = dialog.findViewById(R.id.errorTextView);
-        Button oKConfirmBtn = dialog.findViewById(R.id.oKConfirmBtn);
-
-        errorTextView.setText("Đã có lỗi xảy ra!");
-
-        //set event
-        oKConfirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
@@ -235,11 +147,59 @@ public class CategoryFragment extends Fragment {
         startActivity(intent);
     }
 
-    private List<CategoryEntity> getListCategory() {
+    private void callApiGetAllCategories() {
         List<CategoryEntity> list = new ArrayList<>();
-        list.add(new CategoryEntity(3,"Áo sơ mi nữ", new CategoryEntity(1, "Áo nữ", null)));
-        list.add(new CategoryEntity(4, "Áo thun nam", new CategoryEntity(2, "Áo nam", null)));
-        return list;
+
+        if(sessionManager.isLoggedIn()){
+            String token = sessionManager.getJwt();
+
+            ApiService.apiService.getAllCategories(token)
+                    .enqueue(new Callback<List<CategoryEntity>>() {
+                        @Override
+                        public void onResponse(Call<List<CategoryEntity>> call, Response<List<CategoryEntity>> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            listCategories = response.body();
+
+                            CategoryAdapter categoryAdapter = new CategoryAdapter(listCategories, new IClickItemCategoryListener() {
+                                @Override
+                                public void onClickEditCategory(CategoryEntity category) {
+                                    replaceActivityAndMoveData(category);
+                                    //Log.d("oke", "onClickEditCategory: ");
+                                }
+
+                                @Override
+                                public void onClickDeleteCategory(CategoryEntity category) {
+                                    openConfirmDialog(category);
+                                }
+                            });
+                            recyclerView.setAdapter(categoryAdapter);
+
+                            // sự kiện cho search view
+                            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                                @Override
+                                public boolean onQueryTextSubmit(String query) {
+                                    categoryAdapter.getFilter().filter(query);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onQueryTextChange(String newText) {
+                                    categoryAdapter.getFilter().filter(newText);
+                                    return false;
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<CategoryEntity>> call, Throwable throwable) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+        }
     }
 
 }

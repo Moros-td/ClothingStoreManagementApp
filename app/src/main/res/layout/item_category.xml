@@ -17,7 +17,7 @@
             android:id="@+id/textView_categoryName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16dp" />
+            android:textSize="18dp" />
 
         <TextView
             android:id="@+id/textView_categoryId"
@@ -36,13 +36,13 @@
                 android:layout_width="138dp"
                 android:layout_height="match_parent"
                 android:text="Thuộc: "
-                android:textSize="16dp" />
+                android:textSize="17dp" />
 
             <TextView
                 android:id="@+id/textView_categoryParen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16dp" />
+                android:textSize="18dp" />
         </LinearLayout>
 
         <LinearLayout

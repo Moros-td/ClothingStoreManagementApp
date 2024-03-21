@@ -48,10 +48,11 @@
             android:id="@+id/textViewPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
             android:layout_marginBottom="15dp"
+            android:hint="Password"
+            android:inputType="textPassword"
             android:textColor="@color/white"
-            android:textColorHint="@color/white"/>
+            android:textColorHint="@color/white" />
         <Button
             android:id="@+id/buttonLogin"
             android:layout_width="match_parent"

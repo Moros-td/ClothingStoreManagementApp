@@ -28,7 +28,7 @@ import com.example.clotingstoremanagementapp.entity.ProductEntity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductInfoActitvity extends AppCompatActivity {
+public class ProductInfoActitvity extends InterceptorActivity {
     private Toolbar toolbar;
     private EditText namePD,pricePD,sizeS, sizeM,sizeXL,sizeXXL,sizeL,describePD;
     private Spinner categoryPD,colorPD;

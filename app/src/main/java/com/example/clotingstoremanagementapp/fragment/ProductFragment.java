@@ -141,7 +141,7 @@ public class ProductFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                openSuccessDialog();
+                BaseActivity.openErrorDialog(getContext(), "Xóa sản phẩm thành công!");
                 //openErrorDialog();
             }
         });
@@ -155,40 +155,5 @@ public class ProductFragment extends Fragment {
 
         dialog.show();
     }
-    private void openSuccessDialog() {
-        final Dialog dialog = new Dialog(baseActivity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.success_dialog);
 
-        Window window = dialog.getWindow();
-        if(window == null){
-            return;
-        }
-
-        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        WindowManager.LayoutParams windowAttr = window.getAttributes();
-        windowAttr.gravity = Gravity.CENTER;
-        window.setAttributes(windowAttr);
-
-        // setView trên dialog
-        TextView successTextView = dialog.findViewById(R.id.successTextView);
-
-        successTextView.setText("Xóa sản phẩm thành công!");
-
-        // Khởi tạo Handler
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Đóng dialog sau 3 giây
-                dialog.dismiss();
-            }
-        }, 3000); // Thời gian đợi 3 giây trước khi đóng dialog
-
-        // click ra ngoài thì tắt dialog
-        dialog.setCancelable(false);
-
-        dialog.show();
-    }
 }

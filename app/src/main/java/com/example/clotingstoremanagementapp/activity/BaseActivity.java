@@ -10,13 +10,25 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.clotingstoremanagementapp.R;
+import com.example.clotingstoremanagementapp.api.ApiService;
 import com.example.clotingstoremanagementapp.fragment.CategoryFragment;
 import com.example.clotingstoremanagementapp.fragment.CustomerFragment;
 import com.example.clotingstoremanagementapp.fragment.HomeFragment;
@@ -24,9 +36,20 @@ import com.example.clotingstoremanagementapp.fragment.OrderFragment;
 import com.example.clotingstoremanagementapp.fragment.OrderHistoryFragment;
 import com.example.clotingstoremanagementapp.fragment.ProductFragment;
 import com.example.clotingstoremanagementapp.fragment.StaffFragment;
+import com.example.clotingstoremanagementapp.interceptor.SessionManager;
+import com.example.clotingstoremanagementapp.response.ErrResponse;
+import com.example.clotingstoremanagementapp.response.LoginResponse;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
 
-public class BaseActivity extends AppCompatActivity {
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class BaseActivity extends InterceptorActivity {
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
 
@@ -44,6 +67,8 @@ public class BaseActivity extends AppCompatActivity {
 
     public int currentFragment = FRAGMENT_HOME;
 
+    Dialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +82,7 @@ public class BaseActivity extends AppCompatActivity {
         navigationView.getMenu().findItem(R.id.nav_home).setChecked(true);
     }
 
-    public void setView() {
+    private void setView() {
         //setup toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -74,7 +99,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
 
-    public void setEvent() {
+    private void setEvent() {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -95,6 +120,10 @@ public class BaseActivity extends AppCompatActivity {
                     openFragment(FRAGMENT_STAFF);
                 } else if(id == R.id.nav_customer){
                     openFragment(FRAGMENT_CUSTOMER);
+                }
+                else if(id == R.id.nav_logout){
+                    dialog = BaseActivity.openLoadingDialog(BaseActivity.this);
+                    callApiLogout();
                 }
 
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -186,5 +215,157 @@ public class BaseActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.container, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    public static void openSuccessDialog(Context context, String message) {
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.success_dialog);
+
+        Window window = dialog.getWindow();
+        if(window == null){
+            return;
+        }
+
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        WindowManager.LayoutParams windowAttr = window.getAttributes();
+        windowAttr.gravity = Gravity.CENTER;
+        window.setAttributes(windowAttr);
+
+        // setView trên dialog
+        TextView successTextView = dialog.findViewById(R.id.successTextView);
+
+        successTextView.setText(message);
+
+        // Khởi tạo Handler
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Đóng dialog sau 3 giây
+                dialog.dismiss();
+            }
+        }, 3000); // Thời gian đợi 3 giây trước khi đóng dialog
+
+        // click ra ngoài thì tắt dialog
+        dialog.setCancelable(false);
+
+        dialog.show();
+    }
+
+    public static void openErrorDialog(Context context, String message) {
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.error_dialog);
+
+        Window window = dialog.getWindow();
+        if(window == null){
+            return;
+        }
+
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        WindowManager.LayoutParams windowAttr = window.getAttributes();
+        windowAttr.gravity = Gravity.CENTER;
+        window.setAttributes(windowAttr);
+
+        // click ra ngoài thì tắt dialog
+        dialog.setCancelable(true);
+
+        // setView trên dialog
+        TextView errorTextView = dialog.findViewById(R.id.errorTextView);
+        Button oKConfirmBtn = dialog.findViewById(R.id.oKConfirmBtn);
+
+        errorTextView.setText(message);
+
+        //set event
+        oKConfirmBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    public static Dialog openLoadingDialog(Context context) {
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.loading_dialog);
+
+        Window window = dialog.getWindow();
+        if (window == null) {
+            return null;
+        }
+
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        WindowManager.LayoutParams windowAttr = window.getAttributes();
+        windowAttr.gravity = Gravity.CENTER;
+        window.setAttributes(windowAttr);
+
+        // click ra ngoài thì tắt dialog
+        dialog.setCancelable(false);
+
+        dialog.show();
+        return dialog;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    private void callApiLogout() {
+        SessionManager sessionManager = new SessionManager(this);
+        if(sessionManager.isLoggedIn()){
+            ApiService.apiService.loginOut(sessionManager.getJwt(), sessionManager.getCustom("username"))
+                    .enqueue(new Callback<LoginResponse>() {
+                        @Override
+                        public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            LoginResponse loginResponse = response.body();
+                            if(loginResponse != null){
+                                if(loginResponse.getErr() != null)
+                                    BaseActivity.openErrorDialog(BaseActivity.this, loginResponse.getErr() );
+                                else{
+                                    sessionManager.logout();
+                                    sessionManager.deleteCustom("username");
+                                    navigateToLoginActivity();
+                                    finish();
+                                }
+                            }
+                            else {
+                                //Toast.makeText(getContext(), "Api không trả về data", Toast.LENGTH_LONG).show();
+                                ResponseBody responseBody = response.errorBody();
+                                Gson gson = new Gson();
+                                try {
+                                    if(responseBody != null){
+                                        ErrResponse errResponse = gson.fromJson(responseBody.string(), ErrResponse.class);
+                                        BaseActivity.openErrorDialog(BaseActivity.this, errResponse.getErr());
+                                    }
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<LoginResponse> call, Throwable throwable) {
+                            BaseActivity.openErrorDialog(BaseActivity.this, "Không thể truy cập api");
+                        }
+                    });
+        }
+    }
+
+    private void navigateToLoginActivity() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 }

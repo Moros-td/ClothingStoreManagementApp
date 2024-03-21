@@ -1,11 +1,15 @@
 package com.example.clotingstoremanagementapp.entity;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 public class CategoryEntity implements Serializable {
-
+    @SerializedName("category_id")
     private int id;
+    @SerializedName("name")
     private String categoryName;
+    @SerializedName("parent_category")
     private CategoryEntity categoryParent;
 
     public CategoryEntity(int id, String categoryName, CategoryEntity categoryParent) {

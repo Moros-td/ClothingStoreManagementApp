@@ -30,7 +30,7 @@ import com.example.clotingstoremanagementapp.entity.CategoryEntity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryInfoActivity extends AppCompatActivity {
+public class CategoryInfoActivity extends InterceptorActivity {
     private Toolbar toolbar;
     private TextView categoryIdTextView, srceenName;
     private EditText categoryNameEditText;
