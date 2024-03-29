@@ -1,6 +1,8 @@
 package com.example.clotingstoremanagementapp.api;
 
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
+import com.example.clotingstoremanagementapp.entity.TopProductEntity;
+import com.example.clotingstoremanagementapp.entity.RevenueEntity;
 import com.example.clotingstoremanagementapp.response.LoginResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -54,4 +56,12 @@ public interface ApiService {
 
     @GET("/Dashboard_category/getAllCategories")
     Call<List<CategoryEntity>> getAllCategories(@Header ("Authorization") String token);
+    @GET("/Dashboard_statistical/getRevenueByMonth")
+    Call<List<RevenueEntity>> getRevenueByMonth(@Header("Authorization") String token);
+
+    @GET("/Dashboard_statistical/getRevenueByYear")
+    Call<List<RevenueEntity>> getRevenueByYear(@Header("Authorization") String token);
+
+    @GET("/Dashboard_statistical/getTopSellingProducts")
+    Call<List<TopProductEntity>> getTopSellingProducts(@Header("Authorization") String token);
 }

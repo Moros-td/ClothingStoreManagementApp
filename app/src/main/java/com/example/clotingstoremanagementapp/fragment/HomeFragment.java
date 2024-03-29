@@ -1,10 +1,12 @@
 package com.example.clotingstoremanagementapp.fragment;
 
+import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.clotingstoremanagementapp.R;
+import com.example.clotingstoremanagementapp.activity.BaseActivity;
+import com.example.clotingstoremanagementapp.api.ApiService;
+import com.example.clotingstoremanagementapp.entity.RevenueEntity;
+import com.example.clotingstoremanagementapp.entity.TopProductEntity;
+import com.example.clotingstoremanagementapp.interceptor.SessionManager;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -33,90 +40,143 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeFragment extends Fragment {
 
     boolean doanhThu = true;
     String[] items = new String[]{"Tháng", "Năm"};
-    private static final List<String> MONTHS = Arrays.asList("Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4");
-    private static final List<String> YEARS = Arrays.asList("2020", "2021", "2022", "2023");
     private static final List<String> PRODUCT = Arrays.asList("Áo", "Quần", "Giày", "Áo khoác");
     private static final int CHART_BAR_COLOR = Color.rgb(45, 190, 236);
-
-    // Khai báo các thành phần giao diện
     private Button btnDoanhThu;
     private Button btnSanPham;
     private TextView txtTitle;
     private FrameLayout chartContainer;
+    private BaseActivity baseActivity;
     private Spinner spinnerThongKe;
+    private SessionManager sessionManager;
+    private Dialog dialog;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
-        // Ánh xạ các thành phần giao diện
         btnDoanhThu = view.findViewById(R.id.btn_doanhThu);
         btnSanPham = view.findViewById(R.id.btn_sanPham);
         txtTitle = view.findViewById(R.id.txt_title);
         chartContainer = view.findViewById(R.id.chart);
         spinnerThongKe = view.findViewById(R.id.spinner_thongKe);
-
-        // Khởi tạo ArrayAdapter cho Spinner
+        baseActivity = (BaseActivity) getActivity();
+        sessionManager = new SessionManager(baseActivity);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_dropdown_item, items);
         spinnerThongKe.setAdapter(adapter);
-
-        // Thiết lập sự kiện cho Spinner
         spinnerThongKe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedOption = items[position];
                 updateChartData(selectedOption);
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Không cần xử lý gì khi không có lựa chọn được chọn
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
-
-        // Thiết lập sự kiện cho Button doanh thu
-        btnDoanhThu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchChart(true);
-            }
-        });
-
-        // Thiết lập sự kiện cho Button sản phẩm
-        btnSanPham.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchChart(false);
-            }
-        });
-
-        // Mặc định hiển thị biểu đồ doanh thu khi Fragment được tạo
+        btnDoanhThu.setOnClickListener(v -> switchChart(true));
+        btnSanPham.setOnClickListener(v -> switchChart(false));
         switchChart(true);
-
         return view;
     }
 
-    // Phương thức cập nhật dữ liệu cho biểu đồ
     private void updateChartData(String selectedOption) {
-        if (doanhThu) {
-            // Nếu đang hiển thị biểu đồ doanh thu
-            if ("Tháng".equals(selectedOption)) {
-                updateBarChart(MONTHS, Arrays.asList(500f, 700f, 600f, 800f));
-            } else if ("Năm".equals(selectedOption)) {
-                updateBarChart(YEARS, Arrays.asList(1500f, 1700f, 1600f, 1800f));
+        if (sessionManager.isLoggedIn()) {
+            String token = sessionManager.getJwt();
+            dialog = BaseActivity.openLoadingDialog(baseActivity); // Show loading dialog
+
+            if (doanhThu) {
+                if ("Tháng".equals(selectedOption)) {
+                    ApiService.apiService.getRevenueByMonth(token).enqueue(new Callback<List<RevenueEntity>>() {
+                        @Override
+                        public void onResponse(Call<List<RevenueEntity>> call, Response<List<RevenueEntity>> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss(); // Dismiss loading dialog
+                            }
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<String> labels = new ArrayList<>();
+                                List<Float> values = new ArrayList<>();
+                                for (RevenueEntity entity : response.body()) {
+                                    labels.add("Tháng" + entity.getMonth() + "/" + entity.getYear());
+                                    values.add((float) entity.getRevenue());
+                                }
+                                updateBarChart(labels, values);
+                            } else {
+                                Log.e("API Error", "Failed to fetch revenue data by month");
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<List<RevenueEntity>> call, Throwable t) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss(); // Dismiss loading dialog
+                            }
+                            Log.e("API Error", "Failed to fetch revenue data by month: " + t.getMessage());
+                        }
+                    });
+                } else if ("Năm".equals(selectedOption)) {
+                    ApiService.apiService.getRevenueByYear(token).enqueue(new Callback<List<RevenueEntity>>() {
+                        @Override
+                        public void onResponse(Call<List<RevenueEntity>> call, Response<List<RevenueEntity>> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss(); // Dismiss loading dialog
+                            }
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<String> labels = new ArrayList<>();
+                                List<Float> values = new ArrayList<>();
+                                for (RevenueEntity entity : response.body()) {
+                                    labels.add("Năm" + entity.getYear());
+                                    values.add((float) entity.getRevenue());
+                                }
+                                updateBarChart(labels, values);
+                            } else {
+                                Log.e("API Error", "Failed to fetch revenue data by year");
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<List<RevenueEntity>> call, Throwable t) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss(); // Dismiss loading dialog
+                            }
+                            Log.e("API Error", "Failed to fetch revenue data by year: " + t.getMessage());
+                        }
+                    });
+                }
+            } else {
+                ApiService.apiService.getTopSellingProducts(token).enqueue(new Callback<List<TopProductEntity>>() {
+                    @Override
+                    public void onResponse(Call<List<TopProductEntity>> call, Response<List<TopProductEntity>> response) {
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.dismiss(); // Dismiss loading dialog
+                        }
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<String> labels = new ArrayList<>();
+                            List<Float> values = new ArrayList<>();
+                            for (TopProductEntity entity : response.body()) {
+                                labels.add(entity.getProductName());
+                                values.add((float) entity.getTotalQuantity());
+                            }
+                            updatePieChart(labels, values);
+                        } else {
+                            Log.e("API Error", "Failed to fetch top selling products");
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<List<TopProductEntity>> call, Throwable t) {
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.dismiss(); // Dismiss loading dialog
+                        }
+                        Log.e("API Error", "Failed to fetch top selling products: " + t.getMessage());
+                    }
+                });
             }
-        } else {
-            // Nếu đang hiển thị biểu đồ sản phẩm
-            updatePieChart(PRODUCT, Arrays.asList(500f, 700f, 600f, 800f));
         }
     }
-
     // Phương thức chuyển đổi giữa biểu đồ doanh thu và biểu đồ sản phẩm
     private void switchChart(boolean isDoanhThu) {
         doanhThu = isDoanhThu;
@@ -124,6 +184,8 @@ public class HomeFragment extends Fragment {
             // Hiển thị biểu đồ doanh thu
             btnDoanhThu.setEnabled(false);
             btnSanPham.setEnabled(true);
+            spinnerThongKe.setEnabled(true);
+            spinnerThongKe.setClickable(true);
             txtTitle.setText("Thống kê doanh thu");
             View barChartLayout = LayoutInflater.from(requireContext()).inflate(R.layout.bar_chart, chartContainer, false);
             chartContainer.removeAllViews();
@@ -133,6 +195,8 @@ public class HomeFragment extends Fragment {
             // Hiển thị biểu đồ sản phẩm
             btnDoanhThu.setEnabled(true);
             btnSanPham.setEnabled(false);
+            spinnerThongKe.setEnabled(false);
+            spinnerThongKe.setClickable(false);
             txtTitle.setText("Sản phẩm bán chạy");
             View pieChartLayout = LayoutInflater.from(requireContext()).inflate(R.layout.pie_chart, chartContainer, false);
             chartContainer.removeAllViews();
@@ -154,24 +218,34 @@ public class HomeFragment extends Fragment {
 
         BarDataSet dataSet = new BarDataSet(entries, "Doanh thu");
         dataSet.setColor(CHART_BAR_COLOR);
+        dataSet.setValueTextSize(12f);
 
         BarData barData = new BarData(dataSet);
         barData.setBarWidth(0.9f);
 
         // Thiết lập dữ liệu cho biểu đồ
         barChart.setData(barData);
+        barChart.getAxisLeft().setAxisLineWidth(2f);
+        barChart.getAxisLeft().setTextSize(12f);
+        barChart.getBarData().setBarWidth(0.5f);
+        barChart.setExtraOffsets(5f, 5f, 5f, 15f);
 
         // Cập nhật các thuộc tính của biểu đồ
+        barChart.getXAxis().setLabelCount(labels.size());
         barChart.getDescription().setEnabled(false);
         barChart.getLegend().setEnabled(false);
         barChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
         barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         barChart.getXAxis().setLabelRotationAngle(45f);
         barChart.getXAxis().setGranularity(1f);
+        barChart.getXAxis().setTextSize(12f);
+        barChart.getXAxis().setAxisLineWidth(2f);
         barChart.getXAxis().setGranularityEnabled(true);
         barChart.getAxisLeft().setAxisMinimum(0f);
         barChart.getAxisLeft().setAxisMaximum(Collections.max(values) * 1.2f); // Tăng giá trị max một chút để tránh chạm vào biên
         barChart.invalidate(); // Cập nhật biểu đồ
+        barChart.getAxisRight().setDrawLabels(false); //ko vẽ cột bên phải
+        barChart.getAxisRight().setDrawGridLines(false);
     }
 
     // Cập nhật dữ liệu cho biểu đồ Pie Chart
