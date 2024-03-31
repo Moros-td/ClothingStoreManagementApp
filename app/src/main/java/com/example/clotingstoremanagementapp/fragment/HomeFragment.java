@@ -83,6 +83,9 @@ public class HomeFragment extends Fragment {
         btnDoanhThu.setOnClickListener(v -> switchChart(true));
         btnSanPham.setOnClickListener(v -> switchChart(false));
         switchChart(true);
+        if (dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
         return view;
     }
 
