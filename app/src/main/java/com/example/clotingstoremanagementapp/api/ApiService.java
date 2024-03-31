@@ -19,6 +19,8 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import com.example.clotingstoremanagementapp.entity.TopProductEntity;
+import com.example.clotingstoremanagementapp.entity.RevenueEntity;
 
 public interface ApiService {
 
@@ -53,6 +55,14 @@ public interface ApiService {
     Call<LoginResponse> loginOut(@Header ("Authorization") String token,
                                  @Field("username") String username);
 
+    @GET("/Dashboard_statistical/getRevenueByMonth")
+    Call<List<RevenueEntity>> getRevenueByMonth(@Header("Authorization") String token);
+
+    @GET("/Dashboard_statistical/getRevenueByYear")
+    Call<List<RevenueEntity>> getRevenueByYear(@Header("Authorization") String token);
+
+    @GET("/Dashboard_statistical/getTopSellingProducts")
+    Call<List<TopProductEntity>> getTopSellingProducts(@Header("Authorization") String token);
     @GET("/Dashboard_category/getAllCategories")
     Call<List<CategoryEntity>> getAllCategories(@Header ("Authorization") String token);
 
