@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,19 +27,31 @@ import com.example.clotingstoremanagementapp.activity.BaseActivity;
 import com.example.clotingstoremanagementapp.activity.CategoryInfoActivity;
 import com.example.clotingstoremanagementapp.activity.ProductInfoActitvity;
 import com.example.clotingstoremanagementapp.adapter.ProductAdapter;
+import com.example.clotingstoremanagementapp.api.ApiService;
 import com.example.clotingstoremanagementapp.custom_interface.IClickItemProductListener;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
+import com.example.clotingstoremanagementapp.interceptor.SessionManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ProductFragment extends Fragment {
     private RecyclerView recyclerView;
     private SearchView searchView;
     private BaseActivity baseActivity;
     private View mView;
+    private Dialog dialog;
 
     private FloatingActionButton fab_product;
+    private List<ProductEntity> listProduct;
+    SessionManager sessionManager;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -52,36 +65,13 @@ public class ProductFragment extends Fragment {
         //set layout manager cho rcv
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(baseActivity);
         recyclerView.setLayoutManager(linearLayoutManager);
-
+        dialog = BaseActivity.openLoadingDialog(getContext());
+        sessionManager = new SessionManager(baseActivity);
+        listProduct = new ArrayList<>();
+        callApiGetProducts();
         // set adapter cho rcv
-        ProductAdapter productAdapter = new ProductAdapter(getListProduct(), new IClickItemProductListener() {
 
-            @Override
-            public void onClickEditProduct(ProductEntity product) {
-                replaceActivityAndMoveData(product);
-            }
 
-            @Override
-            public void onClickDeleteProduct(ProductEntity product) {
-                openConfirmDialog(product);
-            }
-        });
-        recyclerView.setAdapter(productAdapter);
-
-        // sự kiện cho search view
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                productAdapter.getFilter().filter(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                productAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });
         fab_product.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,13 +82,18 @@ public class ProductFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
         return mView;
     }
 
     private List<ProductEntity> getListProduct() {
         List<ProductEntity> listP = new ArrayList<>();
         for (int i = 0; i< 10; i++){
-            listP.add(new ProductEntity(i,"SP123", "ÁO THUN TRƠN CỔ ĐỨC KHUY NGỌC TRAI " + i, 50, 500.00,"Mô tả rỗng"));
+            Map<String, Integer> sizes = new HashMap<>();
+            sizes.put("S", 10);
+            List<String> images = new ArrayList<>();
+            images.add("./public/products/2023/12/07/img1701935174.jpeg");
+            listP.add(new ProductEntity("SP123", "ÁO THUN TRƠN CỔ ĐỨC KHUY NGỌC TRAI " + i, "red", 10,200.000,"Test",images,sizes,"test","2023-12-07 14:46:19"));
         }
         return listP;
     }
@@ -155,5 +150,62 @@ public class ProductFragment extends Fragment {
 
         dialog.show();
     }
+    private void callApiGetProducts() {
 
+        if(sessionManager.isLoggedIn()){
+            String token = sessionManager.getJwt();
+            ApiService.apiService.getAllProducts(token).enqueue(new Callback<List<ProductEntity>>() {
+                @Override
+                public void onResponse(Call<List<ProductEntity>> call, Response<List<ProductEntity>> response) {
+                    if (response.isSuccessful()) {
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                        listProduct = response.body();
+                        ProductAdapter productAdapter = new ProductAdapter(listProduct, new IClickItemProductListener() {
+
+                            @Override
+                            public void onClickEditProduct(ProductEntity product) {
+                                replaceActivityAndMoveData(product);
+                            }
+
+                            @Override
+                            public void onClickDeleteProduct(ProductEntity product) {
+                                openConfirmDialog(product);
+                            }
+                        });
+                        recyclerView.setAdapter(productAdapter);
+
+                        // sự kiện cho search view
+                        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                            @Override
+                            public boolean onQueryTextSubmit(String query) {
+                                productAdapter.getFilter().filter(query);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onQueryTextChange(String newText) {
+                                productAdapter.getFilter().filter(newText);
+                                return false;
+                            }
+                        });
+                        Log.d("List", "test");
+                    } else {
+                        BaseActivity.openErrorDialog(getContext(), "Không thể lấy danh sách danh mục từ API.");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<ProductEntity>> call, Throwable throwable) {
+                    // Xử lý lỗi
+                    if (dialog != null && dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    BaseActivity.openErrorDialog(getContext(), "Hiện không thể truy cập API, vui lòng thử lại sau!");
+                }
+            });
+        }
+
+    }
 }

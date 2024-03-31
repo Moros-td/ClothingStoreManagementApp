@@ -1,14 +1,30 @@
 package com.example.clotingstoremanagementapp.entity;
-
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 public class ProductEntity implements Serializable {
-    private int id;
+    @SerializedName("product_code")
     private String productCode;
+    @SerializedName("name")
     private String productName;
+    @SerializedName("color")
     private String productColor;
+    @SerializedName("quantity")
     private int productQuantity;
+    @SerializedName("price")
     private Double productPrice;
+
+    private String description;
+
+    private List<String> images;
+
+    private Map<String, Integer> sizes;
+
+    @SerializedName("update_latest")
+    private String updateLatest;
+
 
     public String getProductDescribe() {
         return productDescribe;
@@ -20,13 +36,17 @@ public class ProductEntity implements Serializable {
 
     private String productDescribe;
 
-    public ProductEntity(int id, String productCode, String productName, int productQuantity, Double productPrice,String productDescribe) {
-        this.id=id;
+    public ProductEntity(String productCode, String productName, String productColor, int productQuantity, Double productPrice, String description, List<String> images, Map<String, Integer> sizes, String updateLatest, String productDescribe) {
         this.productCode = productCode;
         this.productName = productName;
+        this.productColor = productColor;
         this.productQuantity = productQuantity;
         this.productPrice = productPrice;
-        this.productDescribe=productDescribe;
+        this.description = description;
+        this.images = images;
+        this.sizes = sizes;
+        this.updateLatest = updateLatest;
+        this.productDescribe = productDescribe;
     }
 
     public String getProductCode() {
@@ -69,11 +89,35 @@ public class ProductEntity implements Serializable {
         this.productPrice = productPrice;
     }
 
-    public int getId() {
-        return id;
+    public String getDescription() {
+        return description;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public Map<String, Integer> getSizes() {
+        return sizes;
+    }
+
+    public void setSizes(Map<String, Integer> sizes) {
+        this.sizes = sizes;
+    }
+
+    public String getUpdateLatest() {
+        return updateLatest;
+    }
+
+    public void setUpdateLatest(String updateLatest) {
+        this.updateLatest = updateLatest;
     }
 }

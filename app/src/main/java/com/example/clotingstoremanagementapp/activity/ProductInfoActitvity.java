@@ -32,7 +32,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
     private Toolbar toolbar;
     private EditText namePD,pricePD,sizeS, sizeM,sizeXL,sizeXXL,sizeL,describePD;
     private Spinner categoryPD,colorPD;
-    private TextView productID,srceenName;
+    private TextView srceenName;
     private Button uploadFile,btnSave;
     private ProductArrayAdapter productArrayAdapter;
     private CategoryArrayAdapter categoryArrayAdapter;
@@ -52,10 +52,10 @@ public class ProductInfoActitvity extends InterceptorActivity {
         boolean shouldHideProductId = bundle.getBoolean("hideProductId", false);
         if (shouldHideProductId) {
             // Ẩn TextView đi
-            productID.setVisibility(View.GONE);
+            //productID.setVisibility(View.GONE);
         }
         else{
-            productID.setVisibility(View.VISIBLE);
+            //productID.setVisibility(View.VISIBLE);
         }
 
         ProductEntity product = (ProductEntity) bundle.get("product_entity");
@@ -78,7 +78,6 @@ public class ProductInfoActitvity extends InterceptorActivity {
 
     private void setData(ProductEntity product) {
         namePD.setText(product.getProductName());
-        productID.setText(String.valueOf(product.getId()));
         pricePD.setText(String.valueOf(product.getProductPrice()));
         sizeS.setText("4");
         sizeM.setText("5");
@@ -99,7 +98,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        productID = findViewById(R.id.productId);
+        //productID = findViewById(R.id.productId);
         namePD = findViewById(R.id.productName);
         categoryPD = findViewById(R.id.productCategory);
         sizeS =findViewById(R.id.sizeS);
@@ -127,9 +126,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
     }
     private List<ProductEntity> getListProduct() {
         List<ProductEntity> listP = new ArrayList<>();
-        for (int i = 0; i< 5; i++){
-            listP.add(new ProductEntity(i,"SP123", "ÁO THUN TRƠN CỔ ĐỨC KHUY NGỌC TRAI " + i, 50, 500.00,"Mô tả rỗng"));
-        }
+
         return listP;
     }
     private void openSuccessDialog() {

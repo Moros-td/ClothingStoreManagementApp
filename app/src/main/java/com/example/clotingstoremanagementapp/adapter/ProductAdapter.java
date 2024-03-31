@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.clotingstoremanagementapp.R;
 import com.example.clotingstoremanagementapp.custom_interface.IClickItemCategoryListener;
 import com.example.clotingstoremanagementapp.custom_interface.IClickItemProductListener;
@@ -27,11 +28,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private IClickItemProductListener iClickItemProductListener;
     public ProductAdapter(List<ProductEntity> listProduct, IClickItemProductListener listener ) {
         this.iClickItemProductListener = listener;
-        this.listProduct = listProduct;
-        this.listProductOld = listProduct;
-    }
-    public ProductAdapter(List<ProductEntity> listProduct) {
-
         this.listProduct = listProduct;
         this.listProductOld = listProduct;
     }
@@ -55,7 +51,49 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.textViewProductName.setText(productEntity.getProductName());
         String priceString = String.format(Locale.getDefault(), "%.2fđ", productEntity.getProductPrice());
         holder.textViewProductPrice.setText(priceString);
+
         holder.textViewProductQuantity.setText(String.valueOf(productEntity.getProductQuantity()));
+        String path = productEntity.getImages().get(0);
+
+        String pathImage = "";
+        if (path != null && path.length() > 1) {
+            String newPath = path.substring(1);
+            pathImage = "http://10.0.2.2:8097"+newPath;
+        }
+        Glide.with(holder.imageViewProduct).load(pathImage).into(holder.imageViewProduct);
+
+        // set màu
+        if(productEntity.getProductColor().equals("red")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_red);
+        }
+        else if(productEntity.getProductColor().equals("pink")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_pink);
+        }
+        else if(productEntity.getProductColor().equals("yellow")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_yellow);
+        }
+        else if(productEntity.getProductColor().equals("green")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_backgound_green);
+        }
+        else if(productEntity.getProductColor().equals("blue")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_blue);
+        }
+        else if(productEntity.getProductColor().equals("beige")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.cirlce_background_beige);
+        }
+        else if(productEntity.getProductColor().equals("white")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_white);
+        }
+        else if(productEntity.getProductColor().equals("black")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_backgound_black);
+        }
+        else if(productEntity.getProductColor().equals("brown")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_brown);
+        }
+        else if(productEntity.getProductColor().equals("gray")){
+            holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_gray);
+        }
+
         if(iClickItemProductListener != null){
             holder.imageView_productEdit.setOnClickListener(new View.OnClickListener() {
                 @Override

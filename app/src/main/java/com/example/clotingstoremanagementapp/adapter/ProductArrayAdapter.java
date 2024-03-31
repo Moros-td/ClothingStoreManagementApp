@@ -36,7 +36,7 @@ public class ProductArrayAdapter extends ArrayAdapter<ProductEntity> {
         ProductEntity product = data.get(position);
         if(product != null){
             parentCategoryNameTxtView.setText(product.getProductName());
-            parentCategoryIdTxtView.setText(String .valueOf(product.getId()));
+            //parentCategoryIdTxtView.setText(String .valueOf(product.getId()));
         }
         return convertView;
     }
@@ -49,7 +49,7 @@ public class ProductArrayAdapter extends ArrayAdapter<ProductEntity> {
         ProductEntity product = data.get(position);
         if(product != null){
             parentCategoryNameTxtView.setText(product.getProductName());
-            parentCategoryIdTxtView.setText(String .valueOf(product.getId()));
+            //parentCategoryIdTxtView.setText(String .valueOf(product.getId()));
         }
         return convertView;
     }
