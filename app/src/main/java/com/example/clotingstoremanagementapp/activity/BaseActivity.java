@@ -332,8 +332,18 @@ public class BaseActivity extends InterceptorActivity {
                             }
                             LoginResponse loginResponse = response.body();
                             if(loginResponse != null){
-                                if(loginResponse.getErr() != null)
-                                    BaseActivity.openErrorDialog(BaseActivity.this, loginResponse.getErr() );
+                                if(loginResponse.getErr() != null) {
+                                    if(loginResponse.getErr().contains("Unauthenticated")){
+//                                        BaseActivity.openErrorDialog(BaseActivity.this, "Phiên đã hết hạn");
+                                        sessionManager.logout();
+                                        sessionManager.deleteCustom("username");
+                                        navigateToLoginActivity();
+                                        finish();
+                                    }
+                                    else{
+                                        BaseActivity.openErrorDialog(BaseActivity.this, loginResponse.getErr());
+                                    }
+                                }
                                 else{
                                     sessionManager.logout();
                                     sessionManager.deleteCustom("username");
