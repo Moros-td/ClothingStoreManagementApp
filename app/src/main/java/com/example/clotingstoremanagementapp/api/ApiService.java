@@ -1,5 +1,6 @@
 package com.example.clotingstoremanagementapp.api;
 
+import com.example.clotingstoremanagementapp.entity.AdminEntity;
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
 import com.example.clotingstoremanagementapp.response.LoginResponse;
@@ -67,4 +68,26 @@ public interface ApiService {
 
     @GET("/Dashboard_product/getAllProducts")
     Call<List<ProductEntity>> getAllProducts(@Header ("Authorization") String token);
+
+    @GET("/Dashboard_staff/getAllStaffs")
+    Call<List<AdminEntity>> getAllStaffs(@Header ("Authorization") String token);
+
+    @FormUrlEncoded
+    @POST("/Dashboard_staff/AddStaff")
+    Call<LoginResponse> addStaff(@Header ("Authorization") String token, @Field("username") String username,
+                                 @Field("password") String password, @Field("role") String role);
+
+    @FormUrlEncoded
+    @POST("/Dashboard_staff/EditStaff")
+    Call<LoginResponse> editStaff(@Header ("Authorization") String token, @Field("username") String username,
+                                  @Field("role") String role);
+
+    @FormUrlEncoded
+    @POST("/Dashboard_staff/DeleteStaff")
+    Call<LoginResponse> deleteStaff(@Header ("Authorization") String token, @Field("username") String username);
+
+    @FormUrlEncoded
+    @POST("/Dashboard_staff/ResetPassword")
+    Call<LoginResponse> resetPassword(@Header ("Authorization") String token, @Field("username") String username,
+                                    @Field("password") String password);
 }

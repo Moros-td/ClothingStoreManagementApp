@@ -32,11 +32,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         this.listCategoryOld = listCategory;
     }
 
-    public CategoryAdapter(List<CategoryEntity> listCategory) {
-        this.listCategory = listCategory;
-        this.listCategoryOld = listCategory;
-    }
-
     @NonNull
     @Override
     public CategoryAdapter.CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

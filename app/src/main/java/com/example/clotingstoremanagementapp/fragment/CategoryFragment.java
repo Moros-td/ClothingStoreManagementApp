@@ -197,6 +197,7 @@ public class CategoryFragment extends Fragment {
                             if (dialog != null && dialog.isShowing()) {
                                 dialog.dismiss();
                             }
+                            BaseActivity.openErrorDialog(baseActivity, "Không thể kết nối api");
                         }
                     });
         }

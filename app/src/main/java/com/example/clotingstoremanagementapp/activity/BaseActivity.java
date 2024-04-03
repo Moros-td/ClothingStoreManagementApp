@@ -347,6 +347,7 @@ public class BaseActivity extends InterceptorActivity {
                                 else{
                                     sessionManager.logout();
                                     sessionManager.deleteCustom("username");
+                                    sessionManager.deleteCustom("role");
                                     navigateToLoginActivity();
                                     finish();
                                 }

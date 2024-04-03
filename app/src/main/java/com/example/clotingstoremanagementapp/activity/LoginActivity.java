@@ -68,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
                                 sessionManager = new SessionManager(LoginActivity.this);
                                 sessionManager.saveJwt(loginResponse.getToken());
                                 sessionManager.saveCustom("username", username);
+                                sessionManager.saveCustom("role", loginResponse.getRole());
                                 navigateToBaseActivity();
                                 finish();
                             }

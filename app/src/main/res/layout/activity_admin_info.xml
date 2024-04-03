@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.AdminInfoActivity"
+    android:orientation="vertical"
+    android:background="@color/main_color">
+
+    <include
+        android:id="@+id/app_bar_info"
+        layout="@layout/toolbar_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/editTextUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/white_radius_15"
+        android:padding="15dp"
+        android:hint="Username"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"/>
+
+    <EditText
+        android:id="@+id/editTextPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/white_radius_15"
+        android:padding="15dp"
+        android:inputType="textPassword"
+        android:hint="Mật khẩu"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerRole"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:padding="15dp"
+        android:background="@drawable/white_radius_15"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/saveAdminBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:padding="15dp"
+        android:text="Lưu"
+        android:background="@drawable/orange_radius_16"
+        android:layout_gravity="center"
+        android:textColor="@color/white"/>
+
+</LinearLayout>
