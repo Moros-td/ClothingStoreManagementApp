@@ -49,7 +49,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         List<OrderItemEntity> list = orderEntity.getListOrder();
         StringBuilder productsText = new StringBuilder();
         for (OrderItemEntity item : list) {
-            productsText.append(item.getQuanity()).append(" x ").append(item.getProductName()).append("\n");
+            productsText.append(item.getQuantity()).append(" x ").append(item.getProductName()).append("\n");
         }
         holder.productDetail.setText(productsText.toString());
         holder.sate.setText(orderEntity.getState());

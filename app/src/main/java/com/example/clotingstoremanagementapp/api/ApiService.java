@@ -2,6 +2,8 @@ package com.example.clotingstoremanagementapp.api;
 
 import com.example.clotingstoremanagementapp.entity.AdminEntity;
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
+import com.example.clotingstoremanagementapp.entity.OrderEntity;
+import com.example.clotingstoremanagementapp.entity.OrderItemEntity;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
 import com.example.clotingstoremanagementapp.response.LoginResponse;
 import com.google.gson.Gson;
@@ -20,6 +22,9 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
+
 import com.example.clotingstoremanagementapp.entity.TopProductEntity;
 import com.example.clotingstoremanagementapp.entity.RevenueEntity;
 
@@ -90,4 +95,6 @@ public interface ApiService {
     @POST("/Dashboard_staff/ResetPassword")
     Call<LoginResponse> resetPassword(@Header ("Authorization") String token, @Field("username") String username,
                                     @Field("password") String password);
+    @GET("/Dashboard_order/getOrders")
+    Call<List<OrderEntity>> getOrders(@Header("Authorization") String token);
 }

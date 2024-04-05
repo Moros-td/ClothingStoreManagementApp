@@ -2,11 +2,11 @@ package com.example.clotingstoremanagementapp.entity;
 
 public class OrderItemEntity {
     private String productName;
-    private int quanity;
+    private int quantity;
 
-    public OrderItemEntity(String productName, int quanity) {
+    public OrderItemEntity(String productName, int quantity) {
         this.productName = productName;
-        this.quanity = quanity;
+        this.quantity = quantity;
     }
 
     public String getProductName() {
@@ -17,11 +17,11 @@ public class OrderItemEntity {
         this.productName = productName;
     }
 
-    public int getQuanity() {
-        return quanity;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setQuanity(int quanity) {
-        this.quanity = quanity;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }
