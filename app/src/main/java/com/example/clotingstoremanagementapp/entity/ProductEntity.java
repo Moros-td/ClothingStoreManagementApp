@@ -16,27 +16,23 @@ public class ProductEntity implements Serializable {
     @SerializedName("price")
     private Double productPrice;
 
+    @SerializedName("description")
     private String description;
 
+    @SerializedName("images")
     private List<String> images;
 
+    @SerializedName("sizes")
     private Map<String, Integer> sizes;
 
     @SerializedName("update_latest")
     private String updateLatest;
 
+    @SerializedName("categoryObj")
+    private CategoryEntity categoryObj;
 
-    public String getProductDescribe() {
-        return productDescribe;
-    }
 
-    public void setProductDescribe(String productDescribe) {
-        this.productDescribe = productDescribe;
-    }
-
-    private String productDescribe;
-
-    public ProductEntity(String productCode, String productName, String productColor, int productQuantity, Double productPrice, String description, List<String> images, Map<String, Integer> sizes, String updateLatest, String productDescribe) {
+    public ProductEntity(String productCode, String productName, String productColor, int productQuantity, Double productPrice, String description, List<String> images, Map<String, Integer> sizes, String updateLatest, CategoryEntity categoryObj) {
         this.productCode = productCode;
         this.productName = productName;
         this.productColor = productColor;
@@ -46,7 +42,7 @@ public class ProductEntity implements Serializable {
         this.images = images;
         this.sizes = sizes;
         this.updateLatest = updateLatest;
-        this.productDescribe = productDescribe;
+        this.categoryObj = categoryObj;
     }
 
     public String getProductCode() {
@@ -119,5 +115,13 @@ public class ProductEntity implements Serializable {
 
     public void setUpdateLatest(String updateLatest) {
         this.updateLatest = updateLatest;
+    }
+
+    public CategoryEntity getCategoryObj() {
+        return categoryObj;
+    }
+
+    public void setCategoryObj(CategoryEntity categoryObj) {
+        this.categoryObj = categoryObj;
     }
 }

@@ -86,17 +86,17 @@ public class ProductFragment extends Fragment {
         return mView;
     }
 
-    private List<ProductEntity> getListProduct() {
-        List<ProductEntity> listP = new ArrayList<>();
-        for (int i = 0; i< 10; i++){
-            Map<String, Integer> sizes = new HashMap<>();
-            sizes.put("S", 10);
-            List<String> images = new ArrayList<>();
-            images.add("./public/products/2023/12/07/img1701935174.jpeg");
-            listP.add(new ProductEntity("SP123", "ÁO THUN TRƠN CỔ ĐỨC KHUY NGỌC TRAI " + i, "red", 10,200.000,"Test",images,sizes,"test","2023-12-07 14:46:19"));
-        }
-        return listP;
-    }
+//    private List<ProductEntity> getListProduct() {
+//        List<ProductEntity> listP = new ArrayList<>();
+//        for (int i = 0; i< 10; i++){
+//            Map<String, Integer> sizes = new HashMap<>();
+//            sizes.put("S", 10);
+//            List<String> images = new ArrayList<>();
+//            images.add("./public/products/2023/12/07/img1701935174.jpeg");
+//            listP.add(new ProductEntity("SP123", "ÁO THUN TRƠN CỔ ĐỨC KHUY NGỌC TRAI " + i, "red", 10,200.000,"Test",images,sizes,"test","2023-12-07 14:46:19"));
+//        }
+//        return listP;
+//    }
     public void replaceActivityAndMoveData(ProductEntity product){
         Intent intent = new Intent(getActivity(), ProductInfoActitvity.class);
         Bundle bundle = new Bundle();

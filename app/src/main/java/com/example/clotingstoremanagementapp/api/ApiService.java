@@ -12,7 +12,9 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -21,7 +23,9 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -97,4 +101,21 @@ public interface ApiService {
                                     @Field("password") String password);
     @GET("/Dashboard_order/getOrders")
     Call<List<OrderEntity>> getOrders(@Header("Authorization") String token);
+
+    @POST("/Dashboard_product/addProduct")
+    @Multipart
+    Call<ProductEntity> addProduct(@Header ("Authorization") String token,
+                                   @Part("product_name") RequestBody productName,
+                                   @Part("product_price") RequestBody productPrice,
+                                   @Part("category_id") RequestBody categoryId,
+                                   @Part("color") RequestBody color,
+                                   @Part("product_description") RequestBody productDescription,
+                                   @Part("S") RequestBody sizeS,
+                                   @Part("M") RequestBody sizeM,
+                                   @Part("L") RequestBody sizeL,
+                                   @Part("XL") RequestBody sizeXL,
+                                   @Part("XXL") RequestBody sizeXXL,
+                                   @Part MultipartBody.Part[] files);
+
+
 }
