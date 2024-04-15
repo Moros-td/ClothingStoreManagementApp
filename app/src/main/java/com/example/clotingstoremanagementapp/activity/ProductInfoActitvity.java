@@ -1,9 +1,13 @@
 package com.example.clotingstoremanagementapp.activity;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +16,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,11 +33,14 @@ import android.widget.TextView;
 import com.example.clotingstoremanagementapp.R;
 import com.example.clotingstoremanagementapp.adapter.CategoryAdapter;
 import com.example.clotingstoremanagementapp.adapter.CategoryArrayAdapter;
+import com.example.clotingstoremanagementapp.adapter.ColorAdapter;
+import com.example.clotingstoremanagementapp.adapter.ImageAdapter;
 import com.example.clotingstoremanagementapp.adapter.ProductArrayAdapter;
 import com.example.clotingstoremanagementapp.api.ApiService;
 import com.example.clotingstoremanagementapp.custom_interface.IClickItemCategoryListener;
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
+import com.example.clotingstoremanagementapp.entity.ResponseEntity;
 import com.example.clotingstoremanagementapp.interceptor.SessionManager;
 
 import java.io.FileNotFoundException;
@@ -61,9 +70,16 @@ public class ProductInfoActitvity extends InterceptorActivity {
     private ProductEntity product;
     private List<CategoryEntity> listCategories;
     private List<Uri> selectedFileUris;
+    private ActivityResultLauncher<Intent> activityLauncher;
+    private BaseActivity baseActivity;
+    private RecyclerView recyclerView;
+    private View mView;
+    private String action;
+    private String changeImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        changeImage= "false";
         selectedFileUris = new ArrayList<>();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_info_actitvity);
@@ -71,7 +87,11 @@ public class ProductInfoActitvity extends InterceptorActivity {
         sessionManager = new SessionManager(this);
         dialog = BaseActivity.openLoadingDialog(this);
         this.callApiGetAllCategories();
-
+        /// set view image
+        recyclerView = findViewById(R.id.rcv_image);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(ProductInfoActitvity.this, 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        ////
         setView();
 
         // nhận data
@@ -93,8 +113,10 @@ public class ProductInfoActitvity extends InterceptorActivity {
 
         if(product != null){
             setData(product);
+            action = "edit";
         }
         else {
+            action = "add";
             List<String> color = new ArrayList<>();
             color.add("red");
             color.add("pink");
@@ -106,8 +128,8 @@ public class ProductInfoActitvity extends InterceptorActivity {
             color.add("black");
             color.add("brown");
 
-            ArrayAdapter<String> colorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, color);
-            colorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            ColorAdapter colorAdapter = new ColorAdapter(this, R.layout.item_role_selected, color);
+            //colorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             colorPD.setAdapter(colorAdapter);
         }
         setEvent();
@@ -119,7 +141,12 @@ public class ProductInfoActitvity extends InterceptorActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    callApiAddProduct();
+                    if(action.equals("edit")){
+                        callApiEditProduct();
+                    }
+                    else if(action.equals("add")){
+                        callApiAddProduct();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -128,10 +155,13 @@ public class ProductInfoActitvity extends InterceptorActivity {
         uploadFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                changeImage= "true";
+                selectedFileUris.clear();
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(intent, 100);
+                //activityLauncher.launch(intent);
             }
 
         });
@@ -149,6 +179,10 @@ public class ProductInfoActitvity extends InterceptorActivity {
             } else if (data.getData() != null) {
                 selectedFileUris.add(data.getData());
             }
+            //set image
+            ImageAdapter imageAdapter = new ImageAdapter(selectedFileUris, null);
+            recyclerView.setAdapter(imageAdapter);
+            recyclerView.setVisibility(View.VISIBLE);
         }
     }
     private void setData(ProductEntity product) {
@@ -182,6 +216,12 @@ public class ProductInfoActitvity extends InterceptorActivity {
                 break;
             }
         }
+        //set image
+        selectedFileUris.clear();
+        List<String> images =product.getImages();
+        ImageAdapter imageAdapter = new ImageAdapter(null, images);
+        recyclerView.setAdapter(imageAdapter);
+        recyclerView.setVisibility(View.VISIBLE);
 
     }
 
@@ -208,6 +248,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
         btnSave=findViewById(R.id.saveProductBtn);
         describePD=findViewById(R.id.prductDescribe);
         uploadFile= findViewById(R.id.uploadButton);
+
         // set data for spinner
 //        categoryArrayAdapter = new CategoryArrayAdapter(this, android.R.layout.simple_list_item_1, getListParentCategory());
 //        categoryPD.setAdapter(categoryArrayAdapter);
@@ -261,6 +302,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
+
                 finish(); // Đóng activity hiện tại sau khi dialog đóng
             }
         });
@@ -353,25 +395,104 @@ public class ProductInfoActitvity extends InterceptorActivity {
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file[]", "image"+i+".jpg", requestFile);
                 bodies[i] = body;
             }
+            dialog = BaseActivity.openLoadingDialog(this);
 
             ApiService.apiService.addProduct(token, nameRB, priceRB, categoryRB, colorRB, describeRB, sizeSRB, sizeMRB, sizeLRB, sizeXLRB, sizeXXLRB, bodies)
-                    .enqueue(new Callback<ProductEntity>() {
+                    .enqueue(new Callback<ResponseEntity>() {
                         @Override
-                        public void onResponse(Call<ProductEntity> call, Response<ProductEntity> response) {
-                            if (response.isSuccessful()) {
-                                openSuccessDialog();
+                        public void onResponse(Call<ResponseEntity> call, Response<ResponseEntity> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            if (response.isSuccessful() && response.body().isSuccess()) {
+                                BaseActivity.openSuccessDialog(ProductInfoActitvity.this, "Thêm sản phẩm thành công!");
+                                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setResult(Activity.RESULT_OK);
+                                        finish();
+                                    }
+                                }, 3000);
                             } else {
-                                BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API.");
+                                BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 1.");
                             }
                         }
 
                         @Override
-                        public void onFailure(Call<ProductEntity> call, Throwable throwable) {
+                        public void onFailure(Call<ResponseEntity> call, Throwable throwable) {
                             // Xử lý lỗi
                             if (dialog != null && dialog.isShowing()) {
                                 dialog.dismiss();
                             }
-                            BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API.");
+                            BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 2."+throwable.getMessage());
+                        }
+                    });
+        }
+    }
+    private void callApiEditProduct() throws IOException {
+        if(sessionManager.isLoggedIn()){
+            String token = sessionManager.getJwt();
+            RequestBody productCodeRB = RequestBody.create(String.valueOf(product.getProductCode()), MediaType.parse("text/plain"));
+            RequestBody nameRB =RequestBody.create(namePD.getText().toString(), MediaType.parse("text/plain"));
+            CategoryEntity selectedCategory = (CategoryEntity) categoryPD.getSelectedItem();
+            RequestBody categoryRB = RequestBody.create(String.valueOf(selectedCategory.getId()), MediaType.parse("text/plain"));
+            RequestBody colorRB =RequestBody.create(colorPD.getSelectedItem().toString(), MediaType.parse("text/plain"));
+            RequestBody priceRB =RequestBody.create(pricePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody describeRB =RequestBody.create(describePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeSRB = RequestBody.create(sizeS.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeMRB =RequestBody.create(sizeM.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeLRB =RequestBody.create(sizeL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeXLRB =RequestBody.create(sizeXL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeXXLRB =RequestBody.create(sizeXXL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody ChangeImage= RequestBody.create(changeImage, MediaType.parse("text/plain"));
+            MultipartBody.Part[] bodies;
+            if(changeImage.equals("true")){
+                bodies= new MultipartBody.Part[selectedFileUris.size()];
+                for (int i = 0; i < selectedFileUris.size(); i++) {
+                    Uri fileUri = selectedFileUris.get(i);
+                    InputStream inputStream = getContentResolver().openInputStream(fileUri);
+                    byte[] bytes = new byte[inputStream.available()];
+                    inputStream.read(bytes);
+                    RequestBody requestFile = RequestBody.create(bytes, MediaType.parse(getContentResolver().getType(fileUri)));
+
+                    // Tạo MultipartBody.Part từ RequestBody
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("file[]", "image"+i+".jpg", requestFile);
+                    bodies[i] = body;
+                }
+            }
+            else{
+                bodies = new MultipartBody.Part[0];
+            }
+            dialog = BaseActivity.openLoadingDialog(this);
+
+            ApiService.apiService.editProduct(token, productCodeRB, nameRB, priceRB, categoryRB, colorRB, describeRB, sizeSRB, sizeMRB, sizeLRB, sizeXLRB, sizeXXLRB, ChangeImage, bodies)
+                    .enqueue(new Callback<ResponseEntity>() {
+                        @Override
+                        public void onResponse(Call<ResponseEntity> call, Response<ResponseEntity> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            if (response.isSuccessful() && response.body().isSuccess()) {
+                                BaseActivity.openSuccessDialog(ProductInfoActitvity.this, "Chỉnh sửa sản phẩm thành công!");
+                                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setResult(Activity.RESULT_OK);
+                                        finish();
+                                    }
+                                }, 3000);
+                            } else {
+                                BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 1.");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseEntity> call, Throwable throwable) {
+                            // Xử lý lỗi
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 2."+throwable.getMessage());
                         }
                     });
         }

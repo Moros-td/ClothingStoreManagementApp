@@ -61,17 +61,6 @@
                 android:padding="15dp"
                 android:background="@drawable/white_radius_15"
                 />
-            <Button
-                android:id="@+id/uploadButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chọn ảnh"
-                android:background="@drawable/orange_radius_16"
-                android:layout_marginTop="15dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginEnd="15dp"
-
-               />
 
             <EditText
                 android:id="@+id/sizeS"
@@ -155,17 +144,39 @@
                 android:padding="15dp"
                 android:background="@drawable/white_radius_15"
                 />
-
-            <Button
-                android:id="@+id/saveProductBtn"
+            <androidx.recyclerview.widget.RecyclerView
+                android:padding="15dp"
+                android:id="@+id/rcv_image"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:visibility="gone"/>
+            <LinearLayout
+                android:padding="15dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Lưu"
-                android:background="@drawable/orange_radius_16"
-                android:layout_marginTop="15dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginEnd="15dp"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/uploadButton"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="Chọn ảnh"
+                    android:background="@drawable/orange_radius_16"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_gravity="center_horizontal"
+                    />
+                <Button
+                    android:id="@+id/saveProductBtn"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="Lưu"
+                    android:background="@drawable/orange_radius_16"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_gravity="center_horizontal"/>
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

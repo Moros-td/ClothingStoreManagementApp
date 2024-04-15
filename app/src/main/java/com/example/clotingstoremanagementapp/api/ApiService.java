@@ -31,6 +31,7 @@ import retrofit2.http.Query;
 
 import com.example.clotingstoremanagementapp.entity.TopProductEntity;
 import com.example.clotingstoremanagementapp.entity.RevenueEntity;
+import com.example.clotingstoremanagementapp.entity.ResponseEntity;
 
 public interface ApiService {
 
@@ -104,7 +105,7 @@ public interface ApiService {
 
     @POST("/Dashboard_product/addProduct")
     @Multipart
-    Call<ProductEntity> addProduct(@Header ("Authorization") String token,
+    Call<ResponseEntity> addProduct(@Header ("Authorization") String token,
                                    @Part("product_name") RequestBody productName,
                                    @Part("product_price") RequestBody productPrice,
                                    @Part("category_id") RequestBody categoryId,
@@ -116,6 +117,22 @@ public interface ApiService {
                                    @Part("XL") RequestBody sizeXL,
                                    @Part("XXL") RequestBody sizeXXL,
                                    @Part MultipartBody.Part[] files);
+    @POST("/Dashboard_product/editProduct")
+    @Multipart
+    Call<ResponseEntity> editProduct(@Header ("Authorization") String token,
+                                    @Part("product_code") RequestBody productCode,
+                                    @Part("product_name") RequestBody productName,
+                                    @Part("product_price") RequestBody productPrice,
+                                    @Part("category_id") RequestBody categoryId,
+                                    @Part("color") RequestBody color,
+                                    @Part("product_description") RequestBody productDescription,
+                                    @Part("S") RequestBody sizeS,
+                                    @Part("M") RequestBody sizeM,
+                                    @Part("L") RequestBody sizeL,
+                                    @Part("XL") RequestBody sizeXL,
+                                    @Part("XXL") RequestBody sizeXXL,
+                                    @Part("ChangeImage") RequestBody changeImage,
+                                    @Part MultipartBody.Part[] files);
 
 
 }

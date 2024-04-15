@@ -1,11 +1,14 @@
 package com.example.clotingstoremanagementapp.fragment;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,6 +55,7 @@ public class ProductFragment extends Fragment {
     private FloatingActionButton fab_product;
     private List<ProductEntity> listProduct;
     SessionManager sessionManager;
+    ActivityResultLauncher<Intent> activityLauncher;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -61,7 +65,14 @@ public class ProductFragment extends Fragment {
         baseActivity = (BaseActivity) getActivity();
         recyclerView = mView.findViewById(R.id.rcv_product);
         fab_product = mView.findViewById(R.id.fab_product);
-
+        activityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // Reload dữ liệu từ API và cập nhật RecyclerView
+                        callApiGetProducts();
+                    }
+                });
         //set layout manager cho rcv
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(baseActivity);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -79,7 +90,7 @@ public class ProductFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putBoolean("hideProductId", true);
                 intent.putExtras(bundle); // Thêm dữ liệu để ẩn TextView
-                startActivity(intent);
+                activityLauncher.launch(intent);
             }
         });
 
@@ -102,7 +113,7 @@ public class ProductFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putSerializable("product_entity",product);
         intent.putExtras(bundle);
-        startActivity(intent);
+        activityLauncher.launch(intent);
     }
     private void openConfirmDialog(ProductEntity product) {
         final Dialog dialog = new Dialog(baseActivity);
