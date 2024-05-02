@@ -49,11 +49,11 @@ public class OrderFragment extends Fragment {
         dialog = BaseActivity.openLoadingDialog(baseActivity);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(baseActivity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        callApiGetOrdersByState();
+        callApiGetOrders();
         return mView;
     }
 
-    private void callApiGetOrdersByState() {
+    private void callApiGetOrders() {
         if (sessionManager.isLoggedIn()) {
             String token = sessionManager.getJwt();
             ApiService.apiService.getOrders(token).enqueue(new Callback<List<OrderEntity>>() {
