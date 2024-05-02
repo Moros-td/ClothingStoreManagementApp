@@ -3,6 +3,7 @@ package com.example.clotingstoremanagementapp.api;
 import com.example.clotingstoremanagementapp.entity.AdminEntity;
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
 import com.example.clotingstoremanagementapp.entity.OrderEntity;
+import com.example.clotingstoremanagementapp.entity.OrderHistoryEntity;
 import com.example.clotingstoremanagementapp.entity.OrderItemEntity;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
 import com.example.clotingstoremanagementapp.response.LoginResponse;
@@ -137,7 +138,20 @@ public interface ApiService {
     @POST("/Dashboard_product/deleteProduct")
     Call<ResponseEntity> deleteProduct(@Header ("Authorization") String token, @Field("product_code") String product_code);
 
+    @GET("/Dashboard_order/getAllOrders")
+    Call<List<OrderEntity>> getAllOrders(@Header("Authorization") String token);
 
+    @GET("/Dashboard_order/getAllOrdersHistory")
+    Call<List<OrderHistoryEntity>> getAllOrdersHistory(@Header("Authorization") String token);
+    @FormUrlEncoded
+    @POST("/Dashboard_order/cancelOrder")
+    Call<LoginResponse> cancelOrder(@Header("Authorization") String token, @Field("orderCode") String orderCode);
+    @FormUrlEncoded
+    @POST("/Dashboard_order/deliveringOrder")
+    Call<LoginResponse> deliveringOrder(@Header("Authorization") String token, @Field("orderCode") String orderCode);
 
+    @FormUrlEncoded
+    @POST("/Dashboard_order/deliveredOrder")
+    Call<LoginResponse> deliveredOrder(@Header("Authorization") String token, @Field("orderCode") String orderCode);
 
 }

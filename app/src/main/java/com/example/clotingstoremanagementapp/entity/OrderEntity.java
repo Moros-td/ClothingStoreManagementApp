@@ -1,20 +1,79 @@
 package com.example.clotingstoremanagementapp.entity;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
-public class OrderEntity {
+public class OrderEntity implements Serializable {
+    @SerializedName("order_code")
     private String orderCode;
-    private String orderDate;
-    private Float totalPrice;
-    private String state;
-    private List<OrderItemEntity> listOrder;
-    public OrderEntity(String orderCode, String orderDate, Float totalPrice, String state, List<OrderItemEntity> listOrder) {
+    @SerializedName("state")
+    private String orderState;
+    @SerializedName("order_date")
+    private Date orderDate;
+    @SerializedName("total_price")
+    private Double totalPrice;
+
+    @SerializedName("customer")
+    private CustomerEntity customer;
+    @SerializedName("address")
+    private String address;
+    @SerializedName("payment_code")
+    private String paymentCode;
+    @SerializedName("payment_date")
+    private Date paymentDate;
+    @SerializedName("order_items")
+    private List<OrderItemEntity> listOrderItem;
+
+    public OrderEntity() {
+    }
+
+    public OrderEntity(String orderCode, String orderState, Date orderDate, Double totalPrice, CustomerEntity customer, String address, String paymentCode, Date paymentDate, List<OrderItemEntity> listOrderItem) {
         this.orderCode = orderCode;
+        this.orderState = orderState;
         this.orderDate = orderDate;
         this.totalPrice = totalPrice;
-        this.state = state;
-        this.listOrder = listOrder;
+        this.customer = customer;
+        this.address = address;
+        this.paymentCode = paymentCode;
+        this.paymentDate = paymentDate;
+        this.listOrderItem = listOrderItem;
     }
+
+    public String getPaymentCode() {
+        return paymentCode;
+    }
+
+    public void setPaymentCode(String paymentCode) {
+        this.paymentCode = paymentCode;
+    }
+
+    public Date getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(Date paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    public CustomerEntity getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(CustomerEntity customer) {
+        this.customer = customer;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public String getOrderCode() {
         return orderCode;
     }
@@ -23,36 +82,36 @@ public class OrderEntity {
         this.orderCode = orderCode;
     }
 
-    public String getOrderDate() {
+    public List<OrderItemEntity> getListOrderItem() {
+        return listOrderItem;
+    }
+
+    public void setListOrderItem(List<OrderItemEntity> listOrderItem) {
+        this.listOrderItem = listOrderItem;
+    }
+
+    public String getOrderState() {
+        return orderState;
+    }
+
+    public void setOrderState(String orderState) {
+        this.orderState = orderState;
+    }
+
+    public Date getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(String orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 
-    public Float getTotalPrice() {
+    public Double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(Float totalPrice) {
+    public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public List<OrderItemEntity> getListOrder() {
-        return listOrder;
-    }
-
-    public void setListOrder(List<OrderItemEntity> listOrder) {
-        this.listOrder = listOrder;
     }
 }
 

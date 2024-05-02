@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,6 +16,7 @@ import com.example.clotingstoremanagementapp.R;
 import com.example.clotingstoremanagementapp.activity.BaseActivity;
 import com.example.clotingstoremanagementapp.adapter.OrderAdapter;
 import com.example.clotingstoremanagementapp.api.ApiService;
+import com.example.clotingstoremanagementapp.custom_interface.IClickItemOrderListener;
 import com.example.clotingstoremanagementapp.entity.OrderEntity;
 import com.example.clotingstoremanagementapp.entity.OrderItemEntity;
 import com.example.clotingstoremanagementapp.interceptor.SessionManager;
@@ -36,7 +38,7 @@ public class OrderFragment extends Fragment {
     private OrderAdapter orderAdapter;
     private SearchView searchView;
     private Dialog dialog;
-    private List<OrderEntity> orderList = new ArrayList<>();
+    private List<OrderEntity> list;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,54 +51,54 @@ public class OrderFragment extends Fragment {
         dialog = BaseActivity.openLoadingDialog(baseActivity);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(baseActivity);
         recyclerView.setLayoutManager(linearLayoutManager);
-        callApiGetOrders();
+        callApiGetAllOrders();
         return mView;
     }
 
-    private void callApiGetOrders() {
-        if (sessionManager.isLoggedIn()) {
-            String token = sessionManager.getJwt();
-            ApiService.apiService.getOrders(token).enqueue(new Callback<List<OrderEntity>>() {
-                @Override
-                public void onResponse(Call<List<OrderEntity>> call, Response<List<OrderEntity>> response) {
-                    if (dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
-                    orderList = response.body();
-                    updateAdapter();
-                    setupSearchViewForOrders();
-                }
-                @Override
-                public void onFailure(Call<List<OrderEntity>> call, Throwable t) {
-                    if (dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
-                    BaseActivity.openErrorDialog(baseActivity, "Không thể kết nối api");
-                }
-            });
-        }
+    public void replaceFragmentAndMoveData(OrderEntity orderEntity){
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("order_entity", orderEntity);
     }
-    private void setupSearchViewForOrders() {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                if (orderAdapter != null) {
-                    orderAdapter.getFilter().filter(query);
-                }
-                return false;
-            }
+    private void callApiGetAllOrders() {
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if (orderAdapter != null) {
-                    orderAdapter.getFilter().filter(newText);
-                }
-                return false;
-            }
-        });
-    }
-    private void updateAdapter() {
-        orderAdapter = new OrderAdapter(orderList);
-        recyclerView.setAdapter(orderAdapter);
+        if(sessionManager.isLoggedIn()){
+            String token = sessionManager.getJwt();
+//            String email = sessionManager.getCustom("email");
+//            dialog = BaseActivity.openLoadingDialog(getContext());
+
+            ApiService.apiService.getAllOrders(token)
+                    .enqueue(new Callback<List<OrderEntity>>() {
+                        @Override
+                        public void onResponse(Call<List<OrderEntity>> call, Response<List<OrderEntity>> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            list = response.body();
+                            OrderAdapter orderAdapter = new OrderAdapter(list, new IClickItemOrderListener() {
+                                @Override
+                                public void onClickOrder(OrderEntity orderEntity) {
+                                    Bundle bundle = new Bundle();
+                                    bundle.putSerializable("order_entity", orderEntity);
+                                    Fragment fragment = new OrderDetailFragment();
+                                    fragment.setArguments(bundle);
+
+                                    FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                                    fragmentTransaction.replace(R.id.container, fragment);
+                                    fragmentTransaction.addToBackStack(null);
+                                    fragmentTransaction.commit();
+                                }
+                            });
+                            recyclerView.setAdapter(orderAdapter);
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<OrderEntity>> call, Throwable throwable) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            BaseActivity.openErrorDialog(getContext(), throwable.getMessage());
+                        }
+                    });
+        }
     }
 }

@@ -1,21 +1,42 @@
 package com.example.clotingstoremanagementapp.entity;
 
+import com.google.gson.annotations.SerializedName;
+
 public class OrderItemEntity {
-    private String productName;
+    @SerializedName("order_item_id")
+    private int orderItemId;
+    @SerializedName("order_code")
+    private String orderCode;
+
+    private ProductEntity product;
     private int quantity;
+    private String size;
+    @SerializedName("total_price")
+    private Double totalPrice;
 
-    public OrderItemEntity(String productName, int quantity) {
-        this.productName = productName;
-        this.quantity = quantity;
+    public int getOrderItemId() {
+        return orderItemId;
+    }
+    public ProductEntity getProduct() {
+        return product;
     }
 
-    public String getProductName() {
-        return productName;
+    public void setProduct(ProductEntity product) {
+        this.product = product;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public String getOrderCode() {
+        return orderCode;
     }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
+    }
+
+    public void setOrderItemId(int orderItemId) {
+        this.orderItemId = orderItemId;
+    }
+
 
     public int getQuantity() {
         return quantity;
@@ -24,4 +45,21 @@ public class OrderItemEntity {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 }
+
