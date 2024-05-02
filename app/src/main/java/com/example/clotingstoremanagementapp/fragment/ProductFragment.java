@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,19 +28,17 @@ import android.widget.TextView;
 
 import com.example.clotingstoremanagementapp.R;
 import com.example.clotingstoremanagementapp.activity.BaseActivity;
-import com.example.clotingstoremanagementapp.activity.CategoryInfoActivity;
 import com.example.clotingstoremanagementapp.activity.ProductInfoActitvity;
 import com.example.clotingstoremanagementapp.adapter.ProductAdapter;
 import com.example.clotingstoremanagementapp.api.ApiService;
 import com.example.clotingstoremanagementapp.custom_interface.IClickItemProductListener;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
-import com.example.clotingstoremanagementapp.interceptor.SessionManager;
+import com.example.clotingstoremanagementapp.entity.ResponseEntity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.clotingstoremanagementapp.interceptor.SessionManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -65,6 +64,7 @@ public class ProductFragment extends Fragment {
         baseActivity = (BaseActivity) getActivity();
         recyclerView = mView.findViewById(R.id.rcv_product);
         fab_product = mView.findViewById(R.id.fab_product);
+
         activityLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -97,7 +97,7 @@ public class ProductFragment extends Fragment {
         return mView;
     }
 
-//    private List<ProductEntity> getListProduct() {
+    //    private List<ProductEntity> getListProduct() {
 //        List<ProductEntity> listP = new ArrayList<>();
 //        for (int i = 0; i< 10; i++){
 //            Map<String, Integer> sizes = new HashMap<>();
@@ -116,7 +116,7 @@ public class ProductFragment extends Fragment {
         activityLauncher.launch(intent);
     }
     private void openConfirmDialog(ProductEntity product) {
-        final Dialog dialog = new Dialog(baseActivity);
+        final Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.confirm_dialog);
 
@@ -147,8 +147,9 @@ public class ProductFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                BaseActivity.openErrorDialog(getContext(), "Xóa sản phẩm thành công!");
+                //BaseActivity.openErrorDialog(getContext(), "Xóa sản phẩm thành công!");
                 //openErrorDialog();
+                callApiDeleteProduct(product.getProductCode());
             }
         });
 
@@ -163,7 +164,7 @@ public class ProductFragment extends Fragment {
     }
     private void callApiGetProducts() {
 
-        if(sessionManager.isLoggedIn()){
+        if(sessionManager.isLoggedIn()) {
             String token = sessionManager.getJwt();
             ApiService.apiService.getAllProducts(token).enqueue(new Callback<List<ProductEntity>>() {
                 @Override
@@ -183,6 +184,9 @@ public class ProductFragment extends Fragment {
                             @Override
                             public void onClickDeleteProduct(ProductEntity product) {
                                 openConfirmDialog(product);
+
+                                //callApiDeleteProduct(product.getProductCode());
+
                             }
                         });
                         recyclerView.setAdapter(productAdapter);
@@ -217,6 +221,54 @@ public class ProductFragment extends Fragment {
                 }
             });
         }
-
     }
+    void callApiDeleteProduct(String productCode){
+        if(sessionManager.isLoggedIn()) {
+            String token = sessionManager.getJwt();
+            ApiService.apiService.deleteProduct(token, productCode)
+                    .enqueue(new Callback<ResponseEntity>() {
+                        @Override
+                        public void onResponse(Call<ResponseEntity> call, Response<ResponseEntity> response) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            if (response.isSuccessful() && response.body().isSuccess()) {
+                                dialog = BaseActivity.openLoadingDialog(getContext());
+                                BaseActivity.openSuccessDialog(getContext(), "Xóa sản phẩm thành công!");
+
+                                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.dismiss();
+                                        // set result để bên fragment reload
+                                        callApiGetProducts();
+                                    }
+                                }, 3000); // 3000 milliseconds = 3 second
+                            } else {
+                                BaseActivity.openErrorDialog(getContext(), "Không thể xóa sản phẩm");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseEntity> call, Throwable throwable) {
+                            // Xử lý lỗi
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                            dialog = BaseActivity.openLoadingDialog(getContext());
+                            BaseActivity.openErrorDialog(getContext(), "Không thể thêm sản phẩm từ API 2." + throwable.getMessage());
+
+                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dialog.dismiss();
+                                    // set result để bên fragment reload
+                                    callApiGetProducts();
+                                }
+                            }, 3000); // 3000 milliseconds = 3 second
+                        }
+                    });
+        }
+    }
+
 }

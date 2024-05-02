@@ -2,7 +2,6 @@ package com.example.clotingstoremanagementapp.activity;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,8 +16,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,24 +28,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.clotingstoremanagementapp.R;
-import com.example.clotingstoremanagementapp.adapter.CategoryAdapter;
 import com.example.clotingstoremanagementapp.adapter.CategoryArrayAdapter;
 import com.example.clotingstoremanagementapp.adapter.ColorAdapter;
 import com.example.clotingstoremanagementapp.adapter.ImageAdapter;
-import com.example.clotingstoremanagementapp.adapter.ProductArrayAdapter;
 import com.example.clotingstoremanagementapp.api.ApiService;
-import com.example.clotingstoremanagementapp.custom_interface.IClickItemCategoryListener;
 import com.example.clotingstoremanagementapp.entity.CategoryEntity;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
 import com.example.clotingstoremanagementapp.entity.ResponseEntity;
-import com.example.clotingstoremanagementapp.interceptor.SessionManager;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -57,15 +47,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import java.io.InputStream;
-public class ProductInfoActitvity extends InterceptorActivity {
+import com.example.clotingstoremanagementapp.interceptor.SessionManager;
+public class ProductInfoActitvity extends InterceptorActivity  {
     private Toolbar toolbar;
     private EditText namePD,pricePD,sizeS, sizeM,sizeXL,sizeXXL,sizeL,describePD;
     private Spinner categoryPD,colorPD;
     private TextView srceenName;
     private Button uploadFile,btnSave;
-    private ProductArrayAdapter productArrayAdapter;
     private CategoryArrayAdapter categoryArrayAdapter;
-    private SessionManager sessionManager;
     private Dialog dialog;
     private ProductEntity product;
     private List<CategoryEntity> listCategories;
@@ -73,6 +62,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
     private ActivityResultLauncher<Intent> activityLauncher;
     private BaseActivity baseActivity;
     private RecyclerView recyclerView;
+    private SessionManager sessionManager;
     private View mView;
     private String action;
     private String changeImage;
@@ -83,7 +73,6 @@ public class ProductInfoActitvity extends InterceptorActivity {
         selectedFileUris = new ArrayList<>();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_info_actitvity);
-
         sessionManager = new SessionManager(this);
         dialog = BaseActivity.openLoadingDialog(this);
         this.callApiGetAllCategories();
@@ -135,20 +124,132 @@ public class ProductInfoActitvity extends InterceptorActivity {
         setEvent();
 
     }
+    private boolean validateInputs() {
+        boolean isValid = true;
 
+        // Kiểm tra tên sản phẩm
+        if (namePD.getText().toString().trim().isEmpty()) {
+            namePD.setError("Tên sản phẩm không được để trống");
+            isValid = false;
+        }
+        if (describePD.getText().toString().trim().isEmpty()) {
+            describePD.setError("Mô tả không được để trống");
+            isValid = false;
+        }
+
+        // Kiểm tra giá sản phẩm
+        if (pricePD.getText().toString().trim().isEmpty()) {
+            pricePD.setError("Giá sản phẩm không được để trống");
+            isValid = false;
+        } else {
+            try {
+                double price = Double.parseDouble(pricePD.getText().toString());
+                if (price <= 0) {
+                    pricePD.setError("Giá sản phẩm phải lớn hơn 0");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                pricePD.setError("Giá sản phẩm không hợp lệ");
+                isValid = false;
+            }
+        }
+        if (sizeS.getText().toString().trim().isEmpty()) {
+            sizeS.setError("Số luong size sản phẩm không được để trống");
+            isValid = false;
+        } else {
+            try {
+                Integer size = Integer.parseInt(sizeS.getText().toString());
+                if (size < 0) {
+                    sizeS.setError("Số lượng không được âm");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                sizeS.setError("Số lượng không hợp lệ");
+                isValid = false;
+            }
+        }
+        if (sizeM.getText().toString().trim().isEmpty()) {
+            sizeM.setError("Số luong size sản phẩm không được để trống");
+            isValid = false;
+        } else {
+            try {
+                Integer size = Integer.parseInt(sizeM.getText().toString());
+                if (size < 0) {
+                    sizeM.setError("Số lượng không được âm");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                sizeM.setError("Số lượng không hợp lệ");
+                isValid = false;
+            }
+        }
+        if (sizeL.getText().toString().trim().isEmpty()) {
+            sizeL.setError("Số luong size sản phẩm không được để trống");
+            isValid = false;
+        } else {
+            try {
+                Integer size = Integer.parseInt(sizeL.getText().toString());
+                if (size < 0) {
+                    sizeL.setError("Số lượng không được âm");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                sizeL.setError("Số lượng không hợp lệ");
+                isValid = false;
+            }
+        }
+        if (sizeXL.getText().toString().trim().isEmpty()) {
+            sizeXL.setError("Số luong size sản phẩm không được để trống");
+            isValid = false;
+        } else {
+            try {
+                Integer size = Integer.parseInt(sizeXL.getText().toString());
+                if (size < 0) {
+                    sizeXL.setError("Số lượng không được âm");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                sizeXL.setError("Số lượng không hợp lệ");
+                isValid = false;
+            }
+        }
+        if (sizeXXL.getText().toString().trim().isEmpty()) {
+            sizeXXL.setError("Số luong size sản phẩm không được để trống");
+            isValid = false;
+        } else {
+            try {
+                Integer size = Integer.parseInt(sizeXXL.getText().toString());
+                if (size < 0) {
+                    sizeXXL.setError("Số lượng không được âm");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                sizeXXL.setError("Số lượng không hợp lệ");
+                isValid = false;
+            }
+        }
+
+
+        // Kiểm tra các trường kích thước
+        // Bạn có thể thêm các điều kiện kiểm tra cho các trường này tương tự như trên
+
+        return isValid;
+    }
     private void setEvent() {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    if(action.equals("edit")){
-                        callApiEditProduct();
+                // Kiểm tra các trường dữ liệu và thực hiện validation
+                if (validateInputs()) {
+                    try {
+                        if (action.equals("edit")) {
+                            callApiEditProduct();
+                        } else if (action.equals("add")) {
+                            callApiAddProduct();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    else if(action.equals("add")){
-                        callApiAddProduct();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         });
@@ -207,7 +308,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
         color.add("black");
         color.add("brown");
 
-        ArrayAdapter<String> colorAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, color);
+        ColorAdapter colorAdapter = new ColorAdapter(this, R.layout.item_role_selected, color);
         colorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         colorPD.setAdapter(colorAdapter);
         for (int i = 0; i < colorAdapter.getCount(); i++) {
@@ -322,8 +423,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
     }
     private void callApiGetAllCategories() {
         List<CategoryEntity> list = new ArrayList<>();
-
-        if(sessionManager.isLoggedIn()){
+        if(sessionManager.isLoggedIn()) {
             String token = sessionManager.getJwt();
             //final CountDownLatch latch = new CountDownLatch(1);
             ApiService.apiService.getAllCategories(token)
@@ -336,7 +436,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
                             setListCategories(response.body());
                             categoryArrayAdapter = new CategoryArrayAdapter(ProductInfoActitvity.this, android.R.layout.simple_list_item_1, response.body());
                             categoryPD.setAdapter(categoryArrayAdapter);
-                            if(product == null){
+                            if (product == null) {
                                 return;
                             }
                             for (int i = 0; i < categoryArrayAdapter.getCount(); i++) {
@@ -367,21 +467,21 @@ public class ProductInfoActitvity extends InterceptorActivity {
 
     }
     private void callApiAddProduct() throws IOException {
-        if(sessionManager.isLoggedIn()){
+        if(sessionManager.isLoggedIn()) {
             String token = sessionManager.getJwt();
-            RequestBody nameRB =RequestBody.create(namePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody nameRB = RequestBody.create(namePD.getText().toString(), MediaType.parse("text/plain"));
 
             CategoryEntity selectedCategory = (CategoryEntity) categoryPD.getSelectedItem();
             RequestBody categoryRB = RequestBody.create(String.valueOf(selectedCategory.getId()), MediaType.parse("text/plain"));
 
-            RequestBody colorRB =RequestBody.create(colorPD.getSelectedItem().toString(), MediaType.parse("text/plain"));
-            RequestBody priceRB =RequestBody.create(pricePD.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody describeRB =RequestBody.create(describePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody colorRB = RequestBody.create(colorPD.getSelectedItem().toString(), MediaType.parse("text/plain"));
+            RequestBody priceRB = RequestBody.create(pricePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody describeRB = RequestBody.create(describePD.getText().toString(), MediaType.parse("text/plain"));
             RequestBody sizeSRB = RequestBody.create(sizeS.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeMRB =RequestBody.create(sizeM.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeLRB =RequestBody.create(sizeL.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeXLRB =RequestBody.create(sizeXL.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeXXLRB =RequestBody.create(sizeXXL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeMRB = RequestBody.create(sizeM.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeLRB = RequestBody.create(sizeL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeXLRB = RequestBody.create(sizeXL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeXXLRB = RequestBody.create(sizeXXL.getText().toString(), MediaType.parse("text/plain"));
 
             MultipartBody.Part[] bodies = new MultipartBody.Part[selectedFileUris.size()];
             for (int i = 0; i < selectedFileUris.size(); i++) {
@@ -392,7 +492,7 @@ public class ProductInfoActitvity extends InterceptorActivity {
                 RequestBody requestFile = RequestBody.create(bytes, MediaType.parse(getContentResolver().getType(fileUri)));
 
                 // Tạo MultipartBody.Part từ RequestBody
-                MultipartBody.Part body = MultipartBody.Part.createFormData("file[]", "image"+i+".jpg", requestFile);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file[]", "image" + i + ".jpg", requestFile);
                 bodies[i] = body;
             }
             dialog = BaseActivity.openLoadingDialog(this);
@@ -424,30 +524,31 @@ public class ProductInfoActitvity extends InterceptorActivity {
                             if (dialog != null && dialog.isShowing()) {
                                 dialog.dismiss();
                             }
-                            BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 2."+throwable.getMessage());
+                            BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 2." + throwable.getMessage());
                         }
                     });
         }
+
     }
     private void callApiEditProduct() throws IOException {
-        if(sessionManager.isLoggedIn()){
+        if(sessionManager.isLoggedIn()) {
             String token = sessionManager.getJwt();
             RequestBody productCodeRB = RequestBody.create(String.valueOf(product.getProductCode()), MediaType.parse("text/plain"));
-            RequestBody nameRB =RequestBody.create(namePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody nameRB = RequestBody.create(namePD.getText().toString(), MediaType.parse("text/plain"));
             CategoryEntity selectedCategory = (CategoryEntity) categoryPD.getSelectedItem();
             RequestBody categoryRB = RequestBody.create(String.valueOf(selectedCategory.getId()), MediaType.parse("text/plain"));
-            RequestBody colorRB =RequestBody.create(colorPD.getSelectedItem().toString(), MediaType.parse("text/plain"));
-            RequestBody priceRB =RequestBody.create(pricePD.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody describeRB =RequestBody.create(describePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody colorRB = RequestBody.create(colorPD.getSelectedItem().toString(), MediaType.parse("text/plain"));
+            RequestBody priceRB = RequestBody.create(pricePD.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody describeRB = RequestBody.create(describePD.getText().toString(), MediaType.parse("text/plain"));
             RequestBody sizeSRB = RequestBody.create(sizeS.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeMRB =RequestBody.create(sizeM.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeLRB =RequestBody.create(sizeL.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeXLRB =RequestBody.create(sizeXL.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody sizeXXLRB =RequestBody.create(sizeXXL.getText().toString(), MediaType.parse("text/plain"));
-            RequestBody ChangeImage= RequestBody.create(changeImage, MediaType.parse("text/plain"));
+            RequestBody sizeMRB = RequestBody.create(sizeM.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeLRB = RequestBody.create(sizeL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeXLRB = RequestBody.create(sizeXL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody sizeXXLRB = RequestBody.create(sizeXXL.getText().toString(), MediaType.parse("text/plain"));
+            RequestBody ChangeImage = RequestBody.create(changeImage, MediaType.parse("text/plain"));
             MultipartBody.Part[] bodies;
-            if(changeImage.equals("true")){
-                bodies= new MultipartBody.Part[selectedFileUris.size()];
+            if (changeImage.equals("true")) {
+                bodies = new MultipartBody.Part[selectedFileUris.size()];
                 for (int i = 0; i < selectedFileUris.size(); i++) {
                     Uri fileUri = selectedFileUris.get(i);
                     InputStream inputStream = getContentResolver().openInputStream(fileUri);
@@ -456,11 +557,10 @@ public class ProductInfoActitvity extends InterceptorActivity {
                     RequestBody requestFile = RequestBody.create(bytes, MediaType.parse(getContentResolver().getType(fileUri)));
 
                     // Tạo MultipartBody.Part từ RequestBody
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("file[]", "image"+i+".jpg", requestFile);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("file[]", "image" + i + ".jpg", requestFile);
                     bodies[i] = body;
                 }
-            }
-            else{
+            } else {
                 bodies = new MultipartBody.Part[0];
             }
             dialog = BaseActivity.openLoadingDialog(this);
@@ -492,10 +592,11 @@ public class ProductInfoActitvity extends InterceptorActivity {
                             if (dialog != null && dialog.isShowing()) {
                                 dialog.dismiss();
                             }
-                            BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 2."+throwable.getMessage());
+                            BaseActivity.openErrorDialog(ProductInfoActitvity.this, "Không thể thêm sản phẩm từ API 2." + throwable.getMessage());
                         }
                     });
         }
+
     }
     public List<CategoryEntity> getListCategories() {
         return listCategories;

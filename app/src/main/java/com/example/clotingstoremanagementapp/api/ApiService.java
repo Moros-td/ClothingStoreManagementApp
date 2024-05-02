@@ -133,6 +133,11 @@ public interface ApiService {
                                     @Part("XXL") RequestBody sizeXXL,
                                     @Part("ChangeImage") RequestBody changeImage,
                                     @Part MultipartBody.Part[] files);
+    @FormUrlEncoded
+    @POST("/Dashboard_product/deleteProduct")
+    Call<ResponseEntity> deleteProduct(@Header ("Authorization") String token, @Field("product_code") String product_code);
+
+
 
 
 }
