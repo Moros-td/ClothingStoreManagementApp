@@ -26,10 +26,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private List<ProductEntity> listProduct;
     private List<ProductEntity> listProductOld;
     private IClickItemProductListener iClickItemProductListener;
-    public ProductAdapter(List<ProductEntity> listProduct, IClickItemProductListener listener ) {
+    private String role;
+    public ProductAdapter(List<ProductEntity> listProduct, String role, IClickItemProductListener listener ) {
         this.iClickItemProductListener = listener;
         this.listProduct = listProduct;
         this.listProductOld = listProduct;
+        this.role = role;
     }
 
     @NonNull
@@ -92,6 +94,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
         else if(productEntity.getProductColor().equals("gray")){
             holder.viewProductColor.setBackgroundResource(R.drawable.circle_background_gray);
+        }
+
+        if("staff".equals(this.role)){
+            holder.imageView_productEdit.setVisibility(View.GONE);
+            holder.imageView_productDelete.setVisibility(View.GONE);
         }
 
         if(iClickItemProductListener != null){

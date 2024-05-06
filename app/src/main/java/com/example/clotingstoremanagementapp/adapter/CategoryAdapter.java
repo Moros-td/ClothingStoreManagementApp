@@ -25,11 +25,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private List<CategoryEntity> listCategoryOld;
 
     private IClickItemCategoryListener iClickItemCategoryListener;
+    private String role;
 
-    public CategoryAdapter(List<CategoryEntity> listCategory, IClickItemCategoryListener listener) {
+    public CategoryAdapter(List<CategoryEntity> listCategory, String role, IClickItemCategoryListener listener) {
         this.iClickItemCategoryListener = listener;
         this.listCategory = listCategory;
         this.listCategoryOld = listCategory;
+        this.role = role;
     }
 
     @NonNull
@@ -60,6 +62,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.textView_categoryId.setText(String.valueOf(categoryEntity.getId()));
         // sự kiện click nút
 
+        if("staff".equals(this.role)){
+            holder.imageView_categoryEdit.setVisibility(View.GONE);
+            holder.imageView_categoryDelete.setVisibility(View.GONE);
+        }
         if(iClickItemCategoryListener != null){
             holder.imageView_categoryEdit.setOnClickListener(new View.OnClickListener() {
                 @Override

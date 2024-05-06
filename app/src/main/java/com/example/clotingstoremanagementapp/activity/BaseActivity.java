@@ -55,7 +55,7 @@ public class BaseActivity extends InterceptorActivity {
 
     private NavigationView navigationView;
 
-    private TextView pageName;
+    private TextView pageName, usernameTextView, roleTextView;
 
     public static final int FRAGMENT_HOME = 1;
     public static final int FRAGMENT_CATEGORY = 2;
@@ -80,6 +80,14 @@ public class BaseActivity extends InterceptorActivity {
         // set fragment default
         replaceFragment(new HomeFragment());
         navigationView.getMenu().findItem(R.id.nav_home).setChecked(true);
+
+        SessionManager sessionManager = new SessionManager(this);
+        if(sessionManager.getCustom("username") != null){
+            usernameTextView.setText(sessionManager.getCustom("username"));
+        }
+        if(sessionManager.getCustom("role") != null){
+            roleTextView.setText(sessionManager.getCustom("role"));
+        }
     }
 
     private void setView() {
@@ -96,6 +104,8 @@ public class BaseActivity extends InterceptorActivity {
 
         navigationView = findViewById(R.id.nav_view);
         pageName = findViewById(R.id.pageName);
+        usernameTextView = navigationView.getHeaderView(0).findViewById(R.id.usernameTextView);
+        roleTextView = navigationView.getHeaderView(0).findViewById(R.id.roleTextView);
     }
 
 

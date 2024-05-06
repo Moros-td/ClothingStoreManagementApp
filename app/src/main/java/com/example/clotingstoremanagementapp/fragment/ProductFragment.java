@@ -82,7 +82,9 @@ public class ProductFragment extends Fragment {
         callApiGetProducts();
         // set adapter cho rcv
 
-
+        if("staff".equals(sessionManager.getCustom("role"))){
+            fab_product.setVisibility(View.GONE);
+        }
         fab_product.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,7 +176,7 @@ public class ProductFragment extends Fragment {
                             dialog.dismiss();
                         }
                         listProduct = response.body();
-                        ProductAdapter productAdapter = new ProductAdapter(listProduct, new IClickItemProductListener() {
+                        ProductAdapter productAdapter = new ProductAdapter(listProduct, sessionManager.getCustom("role"), new IClickItemProductListener() {
 
                             @Override
                             public void onClickEditProduct(ProductEntity product) {

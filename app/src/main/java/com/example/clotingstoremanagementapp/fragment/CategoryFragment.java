@@ -77,6 +77,9 @@ public class CategoryFragment extends Fragment {
         callApiGetAllCategories();
 
         // sự kiện cho nút thêm
+        if("staff".equals(sessionManager.getCustom("role"))){
+            fab.setVisibility(View.GONE);
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -162,7 +165,7 @@ public class CategoryFragment extends Fragment {
                             }
                             listCategories = response.body();
 
-                            CategoryAdapter categoryAdapter = new CategoryAdapter(listCategories, new IClickItemCategoryListener() {
+                            CategoryAdapter categoryAdapter = new CategoryAdapter(listCategories, sessionManager.getCustom("role"), new IClickItemCategoryListener() {
                                 @Override
                                 public void onClickEditCategory(CategoryEntity category) {
                                     replaceActivityAndMoveData(category);
