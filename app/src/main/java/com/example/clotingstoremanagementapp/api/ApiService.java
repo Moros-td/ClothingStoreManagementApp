@@ -6,6 +6,7 @@ import com.example.clotingstoremanagementapp.entity.OrderEntity;
 import com.example.clotingstoremanagementapp.entity.OrderHistoryEntity;
 import com.example.clotingstoremanagementapp.entity.OrderItemEntity;
 import com.example.clotingstoremanagementapp.entity.ProductEntity;
+import com.example.clotingstoremanagementapp.entity.Statistical;
 import com.example.clotingstoremanagementapp.response.LoginResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -65,6 +66,8 @@ public interface ApiService {
     @POST("/Auth/Logout")
     Call<LoginResponse> loginOut(@Header ("Authorization") String token,
                                  @Field("username") String username);
+    @GET("/Dashboard_statistical/getOrderDetails")
+    Call<List<Statistical>> getOrderDetails(@Header("Authorization") String token);
 
     @GET("/Dashboard_statistical/getRevenueByMonth")
     Call<List<RevenueEntity>> getRevenueByMonth(@Header("Authorization") String token);
