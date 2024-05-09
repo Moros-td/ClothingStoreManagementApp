@@ -30,12 +30,14 @@ import android.widget.Toast;
 import com.example.clotingstoremanagementapp.R;
 import com.example.clotingstoremanagementapp.api.ApiService;
 import com.example.clotingstoremanagementapp.fragment.CategoryFragment;
+import com.example.clotingstoremanagementapp.fragment.ChartFragment;
 import com.example.clotingstoremanagementapp.fragment.CustomerFragment;
 import com.example.clotingstoremanagementapp.fragment.HomeFragment;
 import com.example.clotingstoremanagementapp.fragment.OrderFragment;
 import com.example.clotingstoremanagementapp.fragment.OrderHistoryFragment;
 import com.example.clotingstoremanagementapp.fragment.ProductFragment;
 import com.example.clotingstoremanagementapp.fragment.StaffFragment;
+import com.example.clotingstoremanagementapp.fragment.StatisticalFragment;
 import com.example.clotingstoremanagementapp.interceptor.SessionManager;
 import com.example.clotingstoremanagementapp.response.ErrResponse;
 import com.example.clotingstoremanagementapp.response.LoginResponse;
@@ -64,6 +66,7 @@ public class BaseActivity extends InterceptorActivity {
     public static final int FRAGMENT_ORDER = 5;
     public static final int FRAGMENT_ORDER_HISTORY = 6;
     public static final int FRAGMENT_STAFF = 7;
+    public static final int FRAGMENT_CHART = 8;
 
     public int currentFragment = FRAGMENT_HOME;
 
@@ -78,7 +81,7 @@ public class BaseActivity extends InterceptorActivity {
         setEvent();
 
         // set fragment default
-        replaceFragment(new HomeFragment());
+        replaceFragment(new StatisticalFragment());
         navigationView.getMenu().findItem(R.id.nav_home).setChecked(true);
 
         SessionManager sessionManager = new SessionManager(this);
@@ -131,6 +134,9 @@ public class BaseActivity extends InterceptorActivity {
                 } else if(id == R.id.nav_customer){
                     openFragment(FRAGMENT_CUSTOMER);
                 }
+                else if(id == R.id.nav_chart){
+                    openFragment(FRAGMENT_CHART);
+                }
                 else if(id == R.id.nav_logout){
                     dialog = BaseActivity.openLoadingDialog(BaseActivity.this);
                     callApiLogout();
@@ -182,7 +188,7 @@ public class BaseActivity extends InterceptorActivity {
         if (currentFragment != fragment) {
             switch (fragment) {
                 case FRAGMENT_HOME:
-                    replaceFragment(new HomeFragment());
+                    replaceFragment(new StatisticalFragment());
                     currentFragment = FRAGMENT_HOME;
                     pageName.setText(R.string.menu_home);
                     break;
@@ -215,6 +221,11 @@ public class BaseActivity extends InterceptorActivity {
                     replaceFragment(new CustomerFragment());
                     currentFragment = FRAGMENT_CUSTOMER;
                     pageName.setText(R.string.menu_customer);
+                    break;
+                case FRAGMENT_CHART:
+                    replaceFragment(new ChartFragment());
+                    currentFragment = FRAGMENT_CHART;
+                    pageName.setText(R.string.menu_chart);
                     break;
             }
         }
