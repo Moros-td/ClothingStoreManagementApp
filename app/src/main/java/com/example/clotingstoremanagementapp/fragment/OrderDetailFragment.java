@@ -82,7 +82,7 @@ private BaseActivity baseActivity;
                 // Nếu đơn hàng đang chờ xử lý, hiển thị cả ba nút
                 cancelButton.setVisibility(View.VISIBLE);
                 deliveringButton.setVisibility(View.VISIBLE);
-                successButton.setVisibility(View.VISIBLE);
+                successButton.setVisibility(View.GONE);
             } else if (orderEntity.getOrderState().equals("delivering")) {
                 // Nếu đơn hàng đang được giao, chỉ hiển thị nút thanh toán và hủy
                 cancelButton.setVisibility(View.VISIBLE);

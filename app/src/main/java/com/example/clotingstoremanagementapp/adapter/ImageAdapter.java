@@ -50,7 +50,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             Glide.with(holder.imageViewAddProduct).load(uri).into(holder.imageViewAddProduct);
         }
         if(listImageString != null){
-            String path = listImageString.get(0);
+            String path = listImageString.get(position);
 
             String pathImage = "";
             if (path != null && path.length() > 1) {

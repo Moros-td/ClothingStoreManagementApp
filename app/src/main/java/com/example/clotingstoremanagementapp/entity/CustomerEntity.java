@@ -1,6 +1,11 @@
 package com.example.clotingstoremanagementapp.entity;
 
-public class CustomerEntity {
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+
+public class CustomerEntity implements Serializable {
+    @SerializedName("full_name")
     private String fullName;
     private String email;
     private String phone;

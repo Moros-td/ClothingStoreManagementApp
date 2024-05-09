@@ -243,16 +243,15 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rcv_order_item"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"/>
         </LinearLayout>
     </LinearLayout>
 <LinearLayout
     android:id="@+id/layoutButton"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="center"
     app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toStartOf="@+id/linearLayout"
-    app:layout_constraintStart_toEndOf="@+id/linearLayout"
     android:padding="5dp">
 
     <androidx.appcompat.widget.AppCompatButton

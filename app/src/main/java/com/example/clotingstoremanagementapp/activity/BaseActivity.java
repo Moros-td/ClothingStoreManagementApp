@@ -82,6 +82,7 @@ public class BaseActivity extends InterceptorActivity {
 
         // set fragment default
         replaceFragment(new StatisticalFragment());
+        pageName.setText(R.string.menu_home);
         navigationView.getMenu().findItem(R.id.nav_home).setChecked(true);
 
         SessionManager sessionManager = new SessionManager(this);

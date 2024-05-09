@@ -67,9 +67,6 @@ public class OrderHistoryFragment extends Fragment {
 
         if(sessionManager.isLoggedIn()){
             String token = sessionManager.getJwt();
-//            String email = sessionManager.getCustom("email");
-//            dialog = BaseActivity.openLoadingDialog(getContext());
-
             ApiService.apiService.getAllOrdersHistory(token)
                     .enqueue(new Callback<List<OrderHistoryEntity>>() {
                         @Override

@@ -61,7 +61,8 @@ public class OrderHistoryDetailFragment extends Fragment {
             phoneTextView.setText(orderHistoryEntity.getCustomer().getPhone());
             addressTextView.setText(orderHistoryEntity.getAddress());
             totalPriceTextView.setText(String.valueOf(orderHistoryEntity.getTotalPrice()));
-
+            paymentCodeTextView.setText(orderHistoryEntity.getPaymentCode());
+            paymentDateTextView.setText(String.valueOf(orderHistoryEntity.getPaymentDate()));
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(baseActivity);
             recyclerView.setLayoutManager(linearLayoutManager);
 
