@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -76,8 +77,10 @@ public class ChartFragment extends Fragment {
                 String selectedOption = items[position];
                 updateChartData(selectedOption);
             }
+
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
         btnDoanhThu.setOnClickListener(v -> switchChart(true));
         btnSanPham.setOnClickListener(v -> switchChart(false));
@@ -113,6 +116,7 @@ public class ChartFragment extends Fragment {
                                 Log.e("API Error", "Failed to fetch revenue data by month");
                             }
                         }
+
                         @Override
                         public void onFailure(Call<List<RevenueEntity>> call, Throwable t) {
                             if (dialog != null && dialog.isShowing()) {
@@ -140,6 +144,7 @@ public class ChartFragment extends Fragment {
                                 Log.e("API Error", "Failed to fetch revenue data by year");
                             }
                         }
+
                         @Override
                         public void onFailure(Call<List<RevenueEntity>> call, Throwable t) {
                             if (dialog != null && dialog.isShowing()) {
@@ -168,6 +173,7 @@ public class ChartFragment extends Fragment {
                             Log.e("API Error", "Failed to fetch top selling products");
                         }
                     }
+
                     @Override
                     public void onFailure(Call<List<TopProductEntity>> call, Throwable t) {
                         if (dialog != null && dialog.isShowing()) {
@@ -179,6 +185,7 @@ public class ChartFragment extends Fragment {
             }
         }
     }
+
     // Phương thức chuyển đổi giữa biểu đồ doanh thu và biểu đồ sản phẩm
     private void switchChart(boolean isDoanhThu) {
         doanhThu = isDoanhThu;
@@ -212,7 +219,6 @@ public class ChartFragment extends Fragment {
         BarChart barChart = chartContainer.findViewById(R.id.barchart);
         if (barChart == null) return;
 
-        // Xác định dữ liệu
         List<BarEntry> entries = new ArrayList<>();
         for (int i = 0; i < values.size(); i++) {
             entries.add(new BarEntry(i, values.get(i)));
@@ -225,14 +231,12 @@ public class ChartFragment extends Fragment {
         BarData barData = new BarData(dataSet);
         barData.setBarWidth(0.9f);
 
-        // Thiết lập dữ liệu cho biểu đồ
         barChart.setData(barData);
         barChart.getAxisLeft().setAxisLineWidth(2f);
         barChart.getAxisLeft().setTextSize(12f);
         barChart.getBarData().setBarWidth(0.5f);
         barChart.setExtraOffsets(5f, 5f, 5f, 15f);
 
-        // Cập nhật các thuộc tính của biểu đồ
         barChart.getXAxis().setLabelCount(labels.size());
         barChart.getDescription().setEnabled(false);
         barChart.getLegend().setEnabled(false);
@@ -255,25 +259,34 @@ public class ChartFragment extends Fragment {
         PieChart pieChart = chartContainer.findViewById(R.id.piechart);
         if (pieChart == null) return;
 
-        // Xác định dữ liệu
         List<PieEntry> entries = new ArrayList<>();
         for (int i = 0; i < values.size(); i++) {
             entries.add(new PieEntry(values.get(i), labels.get(i)));
         }
 
         PieDataSet dataSet = new PieDataSet(entries, "");
-        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
 
         PieData pieData = new PieData(dataSet);
         pieData.setValueTextSize(12f);
 
-        // Thiết lập dữ liệu cho biểu đồ
         pieChart.setData(pieData);
 
-        // Cập nhật các thuộc tính của biểu đồ
         pieChart.getDescription().setEnabled(false);
         pieChart.getLegend().setEnabled(false);
-        pieChart.invalidate(); // Cập nhật biểu đồ
+        pieChart.invalidate();
     }
 
+//    private int[] getColors(int numColors) {
+//        int[] colors = new int[numColors];
+//        for (int i = 0; i < numColors; i++) {
+//            colors[i] = getRandomColor();
+//        }
+//        return colors;
+//    }
+//
+//    private int getRandomColor() {
+//        Random rnd = new Random();
+//        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+//    }
 }
